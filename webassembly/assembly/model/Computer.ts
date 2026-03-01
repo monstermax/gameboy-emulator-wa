@@ -16,6 +16,7 @@ export class Computer {
     public ioManager: IoManager | null = null;
     public ppu: Ppu | null = null;
     public instructionsSet: InstructionSet | null;
+    public frames: i64 = 0;
 
     constructor() {
         this.memoryBus = new MemoryBus(this);
@@ -95,5 +96,7 @@ export class Computer {
             ppu.tick(tCycles);
             cyclesDone += tCycles;
         }
+
+        this.frames++
     }
 }

@@ -34,6 +34,8 @@ export class EmulatorWeb {
     private imageData: ImageData | null = null;
     private animFrameId: number = 0;
     private running: boolean = false;
+    public cycles: bigint = 0n;
+    public frames: bigint = 0n;
 
 
     constructor() {}
@@ -132,6 +134,7 @@ export class EmulatorWeb {
     public stop(): void {
         this.running = false;
         this.unbindKeyboard();
+
         if (this.animFrameId) {
             cancelAnimationFrame(this.animFrameId);
             this.animFrameId = 0;
@@ -141,11 +144,17 @@ export class EmulatorWeb {
 
     private loop = (): void => {
         if (!this.running) return;
+        asserts(this.wasmExports, "wasmExports required");
+        asserts(this.computer, "computer required");
 
         this.stepFrame();
         this.drawFrame();
 
         this.animFrameId = requestAnimationFrame(this.loop);
+
+        this.cycles = this.wasmExports.getEmulatorState(this.computer, 'cycles');
+        this.frames = this.wasmExports.getEmulatorState(this.computer, 'frames');
+        //console.log({ cycles: this.cycles, frames: this.frames })
     }
 
 

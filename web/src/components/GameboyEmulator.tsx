@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useEmulator } from '../hooks/useEmulator'
 import { GameboyScreen } from './GameboyScreen'
@@ -13,10 +13,45 @@ const romFilename = "Tetris.World.RevA.gb";
 export const GameboyEmulator: React.FC = () => {
     const { emulator, emulatorStart, emulatorStop, isRunning: emulatorIsRunning, canvasRef, ready } = useEmulator(romFilename)
 
+    const lastIterationInfosRef = useRef({ cycles: 0n, frames: 0n, date: Date.now() });
+    const [cyclesSpeed, setCyclesSpeed] = useState(0);
+    const [framesSpeed, setFramesSpeed] = useState(0);
+
+
     useEffect(() => {
         if (!ready) return;
         console.log('[WEB] Emulator ready, rendering started');
     }, [ready])
+
+    useEffect(() => {
+        //if (!emulatorIsRunning) return;
+
+        const _do = () => {
+            if (!emulatorIsRunning) {
+                //return;
+                clearInterval(timer);
+            }
+
+            const cyclesDiff = emulator.cycles - lastIterationInfosRef.current.cycles;
+            const framesDiff = emulator.frames - lastIterationInfosRef.current.frames;
+
+            const currentDate = Date.now();
+            const durationDiff = (currentDate - lastIterationInfosRef.current.date) / 1000;
+
+            const _cyclesSpeed = Number(cyclesDiff) / durationDiff;
+            setCyclesSpeed(_cyclesSpeed)
+
+            const _framesSpeed = Number(framesDiff) / durationDiff;
+            setFramesSpeed(_framesSpeed)
+
+            lastIterationInfosRef.current.cycles = emulator.cycles;
+            lastIterationInfosRef.current.frames = emulator.frames;
+            lastIterationInfosRef.current.date = currentDate;
+        }
+
+        const timer = setInterval(_do, 1000);
+        return () => clearInterval(timer);
+    }, [emulatorIsRunning])
 
     const handleLoadGame = (filepath: string) => {
         console.log(`Loading game ${filepath}`)
@@ -32,8 +67,21 @@ export const GameboyEmulator: React.FC = () => {
                 {/* Header */}
                 <div className="px-2 py-1 flex items-center justify-between mb-2 border-b NO-border-border border">
                     <h2 className="font-semibold text-lg">Game Boy Emulator</h2>
+
                     {emulatorIsRunning && (
-                        <span className="text-xs text-foreground/60">🔴 Running</span>
+                        <>
+                            <div className="text-xs">
+                                {Math.round(framesSpeed)} FPS
+                            </div>
+
+                            <span className="text-xs text-foreground/60">Running 🔴</span>
+                        </>
+                    )}
+
+                    {!emulatorIsRunning && (
+                        <>
+                            <span className="text-xs text-foreground/60">⚫</span>
+                        </>
                     )}
                 </div>
 

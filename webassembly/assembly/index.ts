@@ -51,6 +51,24 @@ export function runFrame(computer: Computer): void {
 }
 
 
+export function getEmulatorState(computer: Computer, stateKey: string): i64 {
+    if (!computer) throw new Error(`Computer not found`);
+
+    const cpu = computer.cpu;
+    if (!cpu) throw new Error(`Cpu not found`);
+
+    if (stateKey === 'cycles') {
+        return cpu.cycles;
+    }
+
+    if (stateKey === 'frames') {
+        return computer.frames;
+    }
+
+    return 0;
+}
+
+
 /**
  * Get the current framebuffer as a flat Uint8Array (160x144 grayscale pixels).
  * Each byte is a shade: 255=white, 170=light, 85=dark, 0=black.

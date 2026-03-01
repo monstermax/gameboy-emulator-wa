@@ -34,6 +34,7 @@ export class Cpu {
     public ime: bool = false;      // Interrupt Master Enable
     public imeScheduled: bool = false; // EI enables IME after the NEXT instruction
     public halted: bool = false;   // HALT state
+    public cycles: i64 = 0;
 
 
     constructor(computer: Computer) {
@@ -50,6 +51,8 @@ export class Cpu {
             // handleInterrupts above will wake us if needed
             return;
         }
+
+        this.cycles++;
 
         this.fetchInstruction();
         this.executeInstruction();
