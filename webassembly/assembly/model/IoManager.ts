@@ -3,6 +3,7 @@
 // https://gbdev.io/pandocs/Memory_Map.html#io-ranges
 
 import { Computer } from "./Computer";
+import { toHex } from "../lib/lib_numbers";
 
 
 // Relative addresses (offset from 0xFF00)
@@ -94,6 +95,12 @@ export class IoManager {
                 // Bit 7 always 1
                 return this.registers[STAT] | 0x80;
 
+            case 0x26: { // NR52 - read channel status from APU
+                const apu = this.computer.apu;
+                if (apu) return apu.readNr52();
+                return this.registers[ioRelativeAddress];
+            }
+
             default:
                 return this.registers[ioRelativeAddress];
         }
@@ -128,9 +135,28 @@ export class IoManager {
                 this.executeDmaTransfer(value);
                 break;
 
-            default:
+            default: {
                 this.registers[ioRelativeAddress] = value;
+
+                // Route audio registers to APU
+                // NR10-NR14: 0x10-0x14, NR21-NR24: 0x16-0x19,
+                // NR30-NR34: 0x1A-0x1E, NR41-NR44: 0x20-0x23,
+                // NR50-NR52: 0x24-0x26
+                if (ioRelativeAddress >= 0x10 && ioRelativeAddress <= 0x26) {
+                    const apu = this.computer.apu;
+                    if (apu) apu.writeRegister(ioRelativeAddress, value);
+                }
+
+                // Wave RAM: 0x30-0x3F
+                if (ioRelativeAddress >= 0x30 && ioRelativeAddress <= 0x3F) {
+                    const apu = this.computer.apu;
+                    if (apu) {
+                        unchecked(apu.waveRam[<i32>(ioRelativeAddress - 0x30)] = value);
+                    }
+                }
+
                 break;
+            }
         }
     }
 

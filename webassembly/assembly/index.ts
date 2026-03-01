@@ -91,6 +91,35 @@ export function getFramebuffer(computer: Computer): Uint8Array {
 }
 
 
+/**
+ * Get the audio sample buffer (interleaved L/R float32 samples).
+ * Call after runFrame(). sampleCount tells how many stereo samples were generated.
+ */
+export function getAudioBuffer(computer: Computer): Float32Array {
+    if (!computer) throw new Error(`Computer not found`);
+
+    const apu = computer.apu;
+    if (!apu) throw new Error(`Apu not found`);
+
+    const count = apu.sampleCount * 2; // stereo: L,R pairs
+    const result = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+        result[i] = apu.sampleBuffer[i];
+    }
+    return result;
+}
+
+
+export function getAudioSampleCount(computer: Computer): i32 {
+    if (!computer) throw new Error(`Computer not found`);
+
+    const apu = computer.apu;
+    if (!apu) throw new Error(`Apu not found`);
+
+    return apu.sampleCount;
+}
+
+
 export function injectInstructionsSet(computer: Computer, json: string): void {
     if (!computer) throw new Error(`Computer not found`);
 

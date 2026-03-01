@@ -123,6 +123,7 @@ export class EmulatorWeb {
     public start(): void {
         if (this.running) return;
         this.running = true;
+        this.initAudio();
         this.bindKeyboard();
         this.loop();
     }
@@ -134,7 +135,7 @@ export class EmulatorWeb {
     public stop(): void {
         this.running = false;
         this.unbindKeyboard();
-
+        this.destroyAudio();
         if (this.animFrameId) {
             cancelAnimationFrame(this.animFrameId);
             this.animFrameId = 0;
@@ -149,6 +150,7 @@ export class EmulatorWeb {
 
         this.stepFrame();
         this.drawFrame();
+        this.queueAudio();
 
         this.animFrameId = requestAnimationFrame(this.loop);
 
@@ -191,6 +193,93 @@ export class EmulatorWeb {
         }
 
         this.ctx.putImageData(this.imageData, 0, 0);
+    }
+
+
+    // =========================================================================
+    //  Audio
+    // =========================================================================
+
+    private audioCtx: AudioContext | null = null;
+    private audioScriptNode: ScriptProcessorNode | null = null;
+    private audioQueue: Float32Array[] = [];
+    private audioQueueSamples: number = 0;
+    private readonly AUDIO_BUFFER_LIMIT = 8820; // ~200ms at 44100Hz
+
+    private initAudio(): void {
+        this.audioCtx = new AudioContext({ sampleRate: 44100 });
+        // ScriptProcessorNode: 2048 frame buffer, 0 inputs, 2 outputs (stereo)
+        this.audioScriptNode = this.audioCtx.createScriptProcessor(2048, 0, 2);
+
+        this.audioScriptNode.onaudioprocess = (event: AudioProcessingEvent) => {
+            const outL = event.outputBuffer.getChannelData(0);
+            const outR = event.outputBuffer.getChannelData(1);
+            let writePos = 0;
+            const needed = outL.length;
+
+            while (writePos < needed && this.audioQueue.length > 0) {
+                const chunk = this.audioQueue[0];
+                const chunkSamples = chunk.length / 2;
+                const available = chunkSamples;
+                const toCopy = Math.min(available, needed - writePos);
+
+                for (let i = 0; i < toCopy; i++) {
+                    outL[writePos + i] = chunk[i * 2];
+                    outR[writePos + i] = chunk[i * 2 + 1];
+                }
+
+                writePos += toCopy;
+
+                if (toCopy >= chunkSamples) {
+                    this.audioQueue.shift();
+                    this.audioQueueSamples -= chunkSamples;
+                } else {
+                    // Partial consume: keep remainder
+                    this.audioQueue[0] = chunk.slice(toCopy * 2);
+                    this.audioQueueSamples -= toCopy;
+                }
+            }
+
+            // Fill remainder with silence
+            for (let i = writePos; i < needed; i++) {
+                outL[i] = 0;
+                outR[i] = 0;
+            }
+        };
+
+        this.audioScriptNode.connect(this.audioCtx.destination);
+    }
+
+    private queueAudio(): void {
+        if (!this.audioCtx || !this.wasmExports || !this.computer) return;
+
+        // Resume context if suspended (browsers require user gesture)
+        if (this.audioCtx.state === "suspended") {
+            this.audioCtx.resume();
+        }
+
+        const sampleCount = this.wasmExports.getAudioSampleCount(this.computer);
+        if (sampleCount <= 0) return;
+
+        // Drop audio if queue is too far ahead (avoid growing latency)
+        if (this.audioQueueSamples > this.AUDIO_BUFFER_LIMIT) return;
+
+        const buffer: Float32Array = this.wasmExports.getAudioBuffer(this.computer);
+        this.audioQueue.push(buffer);
+        this.audioQueueSamples += sampleCount;
+    }
+
+    private destroyAudio(): void {
+        if (this.audioScriptNode) {
+            this.audioScriptNode.disconnect();
+            this.audioScriptNode = null;
+        }
+        if (this.audioCtx) {
+            this.audioCtx.close();
+            this.audioCtx = null;
+        }
+        this.audioQueue = [];
+        this.audioQueueSamples = 0;
     }
 
 

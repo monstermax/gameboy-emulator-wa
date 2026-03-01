@@ -5,6 +5,7 @@ import { IoManager } from "./IoManager";
 import { Mbc } from "./Mbc";
 import { MemoryBus } from "./Memory";
 import { Ppu } from "./Ppu";
+import { Apu } from "./Apu";
 
 import { InstructionSet } from '../types/cpu_instructions.types';
 
@@ -15,6 +16,7 @@ export class Computer {
     public mbc: Mbc | null = null;
     public ioManager: IoManager | null = null;
     public ppu: Ppu | null = null;
+    public apu: Apu | null = null;
     public instructionsSet: InstructionSet | null;
     public frames: i64 = 0;
 
@@ -23,6 +25,7 @@ export class Computer {
         this.cpu = new Cpu(this);
         this.ioManager = new IoManager(this);
         this.ppu = new Ppu(this);
+        this.apu = new Apu(this);
         this.instructionsSet = null;
     }
 
@@ -32,13 +35,13 @@ export class Computer {
         if (!cpu) throw new Error(`Cpu not found`);
 
         const ppu = this.ppu;
+        const apu = this.apu;
 
         for (let i: i32 = 0; i < cycles; i++) {
             cpu.runCycle();
-
-            if (ppu) {
-                ppu.tick(cpu.lastCycles);
-            }
+            const tc = cpu.lastCycles;
+            if (ppu) ppu.tick(tc);
+            if (apu) apu.tick(tc);
         }
     }
 
@@ -53,6 +56,11 @@ export class Computer {
         const ppu = this.ppu;
         if (!ppu) throw new Error(`Ppu not found`);
 
+        const apu = this.apu;
+
+        // Reset audio sample count for this frame
+        if (apu) apu.sampleCount = 0;
+
         ppu.frameReady = false;
 
         let cyclesDone: i32 = 0;
@@ -60,6 +68,7 @@ export class Computer {
             cpu.runCycle();
             const tc = cpu.lastCycles;
             ppu.tick(tc);
+            if (apu) apu.tick(tc);
             cyclesDone += tc;
         }
 
