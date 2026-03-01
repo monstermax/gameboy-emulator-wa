@@ -1,3 +1,5 @@
+// Gameboy Emulator
+
 import { JSON } from 'json-as';
 
 import { Computer } from "./model/Computer";
@@ -7,7 +9,10 @@ import { getRomHeader } from "./model/RomHeader";
 import { InstructionSet } from './types/cpu_instructions.types';
 
 
-// Gameboy Emulator
+// Screen constants (exported for the frontend)
+export const SCREEN_WIDTH: i32 = 160;
+export const SCREEN_HEIGHT: i32 = 144;
+
 
 export function runEmulator(): Computer {
     const computer = new Computer;
@@ -16,6 +21,11 @@ export function runEmulator(): Computer {
     if (!cpu) throw new Error(`Cpu not found`);
 
     cpu.registers.PC = 0x0150;
+    cpu.registers.SP = 0xFFFE;  // Post-boot SP value
+    cpu.registers.AF = 0x01B0;  // Post-boot AF (A=0x01, F=0xB0)
+    cpu.registers.BC = 0x0013;
+    cpu.registers.DE = 0x00D8;
+    cpu.registers.HL = 0x014D;
 
     return computer;
 }
@@ -25,6 +35,39 @@ export function runCycles(computer: Computer, cycles: i32): void {
     if (!computer) throw new Error(`Computer not found`);
 
     computer.runCycles(cycles);
+}
+
+
+/**
+ * Run until the PPU produces a complete frame.
+ * Call this at ~60 Hz from the frontend (requestAnimationFrame).
+ */
+export function runFrame(computer: Computer): void {
+    if (!computer) throw new Error(`Computer not found`);
+
+    computer.runFrame();
+}
+
+
+/**
+ * Get the current framebuffer as a flat Uint8Array (160x144 grayscale pixels).
+ * Each byte is a shade: 255=white, 170=light, 85=dark, 0=black.
+ */
+export function getFramebuffer(computer: Computer): Uint8Array {
+    if (!computer) throw new Error(`Computer not found`);
+
+    const ppu = computer.ppu;
+    if (!ppu) throw new Error(`Ppu not found`);
+
+    const fb = ppu.framebuffer;
+    const size = fb.length;
+
+    // Copy StaticArray to Uint8Array for JS interop
+    const result = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+        result[i] = fb[i];
+    }
+    return result;
 }
 
 
@@ -58,4 +101,3 @@ export function injectRom(computer: Computer, romFile: Uint8Array): void {
 
     console.log(`[WASM] Rom Loaded (${staticArr.length} bytes)`)
 }
-
