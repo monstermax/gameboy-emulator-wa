@@ -23,7 +23,7 @@ export const useEmulator = (romFilename: string): EmulatorHook => {
 
     async function initEmulator(emulator: EmulatorWeb): Promise<void> {
         await emulator.init()
-        console.log(`Emulator initialized`)
+        console.log(`[WEB] Emulator initialized`)
     }
 
 

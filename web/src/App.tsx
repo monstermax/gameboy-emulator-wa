@@ -14,7 +14,7 @@ function App() {
         if (!emulatorHook.emulator) return;
 
         const _use = () => {
-            console.log('emulator mounted');
+            console.log('[WEB] Emulator mounted by App');
         }
 
         const timer = setTimeout(_use, 1);

@@ -29,7 +29,7 @@ export class EmulatorCli {
         asserts(this.wasmExports, "wasmExports required")
 
         this.computer = this.wasmExports.runEmulator();
-        console.log(`Computer initialized`)
+        console.log(`[CLI] Computer initialized`)
 
         await this.loadintructionsSet()
         await this.loadRom()
@@ -57,7 +57,7 @@ export class EmulatorCli {
         const json = JSON.stringify(instructionsSet);
         this.wasmExports.injectInstructionsSet(this.computer, json);
 
-        console.log('[CLI] InstructionsSet loaded');
+        //console.log('[CLI] InstructionsSet loaded');
     }
 
 
@@ -70,8 +70,9 @@ export class EmulatorCli {
 
         const romHeader = getRomHeader(romFile);
         //console.log('[CLI] romHeader', romHeader);
-        console.log('[CLI] Rom Title:', romFile.byteLength);
-        console.log('[CLI] Rom Size:', romHeader.romTitle.toString('ascii'));
+        //console.log('[CLI] Cartridge Type:', romHeader.cartridgeType.readUInt8());
+        //console.log('[CLI] Rom Title:', romFile.byteLength);
+        //console.log('[CLI] Rom Size:', romHeader.romTitle.toString('ascii'));
 
         const romFileArr: Uint8Array = new Uint8Array(romFile);
         this.wasmExports.injectRom(this.computer, romFileArr);

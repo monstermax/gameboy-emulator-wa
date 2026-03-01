@@ -28,7 +28,7 @@ export class EmulatorWeb {
         asserts(this.wasmExports, "wasmExports required")
 
         this.computer = this.wasmExports.runEmulator();
-        console.log(`Computer initialized`)
+        console.log(`[WEB] Computer initialized`)
 
         await this.loadintructionsSet()
         await this.loadRom()
@@ -55,7 +55,7 @@ export class EmulatorWeb {
         const json = JSON.stringify(instructionsSet);
         this.wasmExports.injectInstructionsSet(this.computer, json);
 
-        console.log('[WEB] InstructionsSet loaded');
+        //console.log('[WEB] InstructionsSet loaded');
     }
 
 
@@ -67,9 +67,10 @@ export class EmulatorWeb {
 
         const romHeader = getRomHeader(romFile);
 
-        console.log('[WEB] romHeader', romHeader)
-        console.log('[WEB] Rom Size:', romFile.byteLength);
-        console.log('[WEB] Rom Title:', romHeader.romTitle.toString('ascii'))
+        console.log('[WEB] romHeader', romHeader);
+        //console.log('[WEB] Cartridge Type:', romHeader.cartridgeType.readUInt8());
+        //console.log('[WEB] Rom Size:', romFile.byteLength);
+        //console.log('[WEB] Rom Title:', romHeader.romTitle.toString('ascii'))
 
         const romFileArr: Uint8Array = new Uint8Array(romFile);
         this.wasmExports.injectRom(this.computer, romFileArr);

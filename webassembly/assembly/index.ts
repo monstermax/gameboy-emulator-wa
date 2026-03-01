@@ -35,20 +35,22 @@ export function injectInstructionsSet(computer: Computer, json: string): void {
 
     computer.instructionsSet = JSON.parse<InstructionSet>(json);
 
-    console.log('[WASM] Instructions Loaded')
+    //console.log('[WASM] Instructions Loaded')
 }
 
 
-export function injectRom(computer: Computer, data: Uint8Array): void {
+export function injectRom(computer: Computer, romFile: Uint8Array): void {
     if (!computer) throw new Error(`Computer not found`);
 
-    const romHeader = getRomHeader(data);
+    const romHeader = getRomHeader(romFile);
     //console.log('romHeader', romHeader);
 
     let romTitle = String.UTF8.decode(romHeader.romTitle.buffer);
+    console.log('[WASM] Cartridge Type: ' + romHeader.cartridgeType.at(0).toString());
+    console.log('[WASM] Rom Size: ' + romFile.byteLength.toString());
     console.log('[WASM] Rom Title: ' + romTitle);
 
-    let staticArr = changetype<StaticArray<u8>>(data.buffer);
+    let staticArr = changetype<StaticArray<u8>>(romFile.buffer);
     computer.rom = new Rom(computer, staticArr);
     computer.ram = new Ram(computer);
 

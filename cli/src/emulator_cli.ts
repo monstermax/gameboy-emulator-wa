@@ -16,7 +16,7 @@ async function main() {
 
 async function initEmulator(emulator: EmulatorCli): Promise<void> {
     await emulator.init()
-    console.log(`Emulator initialized`)
+    console.log(`[CLI] Emulator initialized`)
 }
 
 

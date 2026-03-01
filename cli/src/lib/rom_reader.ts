@@ -11,7 +11,7 @@ const romBaseUrl = 'http://localhost:3240/roms';      // Load ROM from HTTP endp
 export function readRom(romFilename: string): Buffer<ArrayBuffer> {
     const romFilepath = `${romDir}/${romFilename}`;
 
-    console.log(`Reading ROM from ${romFilepath}`);
+    console.log(`[CLI] Reading ROM from ${romFilepath}`);
 
     if (!fs.existsSync(romFilepath)) {
         console.error(`Rom file not found`);
@@ -27,7 +27,7 @@ export function readRom(romFilename: string): Buffer<ArrayBuffer> {
 export async function fetchRom(romFilename: string): Promise<Buffer<ArrayBuffer>> {
     const romFileurl = `${romBaseUrl}/${romFilename}`;
 
-    console.log(`Fetching ROM from ${romFileurl}`);
+    console.log(`[CLI] Fetching ROM from ${romFileurl}`);
 
     const response = await fetch(romFileurl);
 
