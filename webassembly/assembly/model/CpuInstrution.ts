@@ -1,9 +1,9 @@
 // Gameboy Emulator - CPU Instructions
 
-import { Cpu } from "../cpu";
+import { Cpu } from "./Cpu";
 import { toHex } from "../lib/lib_numbers";
 
-import { Operand } from "../cpu_instructions.types";
+import { Operand } from "../types/cpu_instructions.types";
 
 
 export class InstructionActions {

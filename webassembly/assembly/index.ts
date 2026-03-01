@@ -1,15 +1,14 @@
 
 import { JSON } from 'json-as';
 
-import { Computer } from "./Computer";
-import { Rom } from "./memory";
-import { getRomHeader } from "./rom_utils";
+import { Computer } from "./model/Computer";
+import { Ram, Rom } from "./model/Memory";
+import { getRomHeader } from "./model/RomHeader";
 
-import { InstructionSet } from './cpu_instructions.types';
+import { InstructionSet } from './types/cpu_instructions.types';
 
 
 // Gameboy Emulator
-
 
 export function runEmulator(): Computer {
     const computer = new Computer;
@@ -25,26 +24,15 @@ export function runEmulator(): Computer {
 
 
 export function runCycles(computer: Computer, cycles: i32): void {
-    const cpu = computer.cpu;
-    if (!cpu) throw new Error(`Cpu not found`);
+    if (!computer) throw new Error(`Computer not found`);
 
-    const tsStart: i64 = Date.now();
-
-    let cyclesDone: i64 = 0;
-    for (cyclesDone=0; cyclesDone<cycles; cyclesDone++) {
-        cpu.runCycle();
-    }
-
-    const tsEnd: i64 = Date.now();
-    const duration: i64 = tsEnd - tsStart;
-
-    const speed = Math.round((cyclesDone as f64) / (duration as f64) * 1000);
-
-    console.log(`[WASM] WASM Completed (duration: ${duration} ms. for ${cyclesDone} cycles. => speed: ${speed} cycles/sec.)`)
+    computer.runCycles(cycles);
 }
 
 
 export function injectInstructionsSet(computer: Computer, json: string): void {
+    if (!computer) throw new Error(`Computer not found`);
+
     computer.instructionsSet = JSON.parse<InstructionSet>(json);
 
     console.log('[WASM] Instructions Loaded')
@@ -52,7 +40,9 @@ export function injectInstructionsSet(computer: Computer, json: string): void {
 
 
 export function injectRom(computer: Computer, data: Uint8Array): void {
-    const romHeader = getRomHeader(data);romHeader
+    if (!computer) throw new Error(`Computer not found`);
+
+    const romHeader = getRomHeader(data);
     //console.log('romHeader', romHeader);
 
     let romTitle = String.UTF8.decode(romHeader.romTitle.buffer);
@@ -60,6 +50,7 @@ export function injectRom(computer: Computer, data: Uint8Array): void {
 
     let staticArr = changetype<StaticArray<u8>>(data.buffer);
     computer.rom = new Rom(computer, staticArr);
+    computer.ram = new Ram(computer);
 
     console.log(`[WASM] Rom Loaded (${staticArr.length} bytes)`)
 }

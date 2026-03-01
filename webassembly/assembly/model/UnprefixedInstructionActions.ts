@@ -1,7 +1,8 @@
+// Gameboy Emulator - CPU Instructions - Unprefixed
 
 import { CpuInstrution, InstructionActions } from "./CpuInstrution";
 
-import { Cpu } from "../cpu";
+import { Cpu } from "./Cpu";
 import { toHex } from "../lib/lib_numbers";
 
 

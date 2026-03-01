@@ -10,6 +10,14 @@ export namespace MEMORY_MAP {
     export const RAM_START: u16 = 0x8000;
     export const RAM_END: u16 = 0xDFFF;
 
+    // ## Echo RAM ## (0xE000-0xFDFF)
+    export const ECHO_RAM_START: u16 = 0xE000;
+    export const ECHO_RAM_END: u16 = 0xFDFF;
+
+    // ## OAM ## (0xFE00-0xFE9F)
+    export const OAM_START: u16 = 0xFE00;
+    export const OAM_END: u16 = 0xFE9F;
+
     // ## I/O Devices ## (0xFF00-0xFF7F)
     export const IO_START: u16 = 0xFF00;
     export const IO_END: u16 = 0xFF7F;
@@ -18,6 +26,7 @@ export namespace MEMORY_MAP {
     export const HRAM_START: u16 = 0xFF80;
     export const HRAM_END: u16 = 0xFFFE;
 
+    // ## Interrupt ## (0xFFFF-0xFFFF)
     export const INTERRUPT: u16 = 0xFFFF;
 
 };
@@ -31,6 +40,11 @@ export function isRomAddress(address: u16): boolean {
 
 export function isRamAddress(address: u16): boolean {
     return address >= MEMORY_MAP.RAM_START && address <= MEMORY_MAP.RAM_END;
+}
+
+
+export function isEchoRamAddress(address: u16): boolean {
+    return address >= MEMORY_MAP.ECHO_RAM_START && address <= MEMORY_MAP.ECHO_RAM_END;
 }
 
 
