@@ -9,6 +9,15 @@ import { asserts } from "./utils";
 import type { __Internref8 } from "../../../webassembly/build/release";
 
 
+/*
+# Key Map:
+ - A      = "z"
+ - B      = "x"
+ - Select = "Shift"
+ - Start  = "Enter"
+*/
+
+
 type ComputerRef = __Internref8;
 
 const SCREEN_WIDTH = 160;
