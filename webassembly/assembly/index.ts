@@ -8,6 +8,7 @@ import { getRomHeader } from "./rom_utils";
 import { InstructionSet } from './cpu_instructions.types';
 
 
+// Gameboy Emulator
 
 
 export function runEmulator(): Computer {
@@ -27,11 +28,19 @@ export function runCycles(computer: Computer, cycles: i32): void {
     const cpu = computer.cpu;
     if (!cpu) throw new Error(`Cpu not found`);
 
-    for (let i=0; i<cycles; i++) {
+    const tsStart: i64 = Date.now();
+
+    let cyclesDone: i64 = 0;
+    for (cyclesDone=0; cyclesDone<cycles; cyclesDone++) {
         cpu.runCycle();
     }
 
-    console.log('[WASM] WASM Completed')
+    const tsEnd: i64 = Date.now();
+    const duration: i64 = tsEnd - tsStart;
+
+    const speed = Math.round((cyclesDone as f64) / (duration as f64) * 1000);
+
+    console.log(`[WASM] WASM Completed (duration: ${duration} ms. for ${cyclesDone} cycles. => speed: ${speed} cycles/sec.)`)
 }
 
 

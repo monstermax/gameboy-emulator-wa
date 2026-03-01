@@ -6,6 +6,9 @@ import { MemoryBus, Ram, Rom } from "./memory";
 import { InstructionSet } from './cpu_instructions.types';
 
 
+// Gameboy Emulator - Computer
+
+
 export class Computer {
     public memoryBus: MemoryBus | null = null;
     public cpu: Cpu | null = null;

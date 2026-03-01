@@ -9,7 +9,7 @@ import { isIoAddress, isRamAddress, isRomAddress, MEMORY_MAP } from "./memory_ma
 
 export class MemoryBus {
     private computer: Computer;
-    private verbose: boolean = true;
+    private verbose: boolean = false;
 
     constructor(computer: Computer) {
         this.computer = computer;

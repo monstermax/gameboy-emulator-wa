@@ -80,7 +80,7 @@ export class EmulatorWeb {
         asserts(this.wasmExports, "wasmExports required");
         asserts(this.computer, "computer required");
 
-        this.wasmExports.runCycles(this.computer, 1_000)
+        this.wasmExports.runCycles(this.computer, 10_000)
     }
 
 }
