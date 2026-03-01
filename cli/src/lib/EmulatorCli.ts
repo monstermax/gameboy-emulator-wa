@@ -68,7 +68,7 @@ export class EmulatorCli {
         const romFile = await readRom(this.romFilename)
         //const romFile = await fetchRom(this.romFilename)
 
-        const romHeader = getRomHeader(romFile);
+        //const romHeader = getRomHeader(romFile);
         //console.log('[CLI] romHeader', romHeader);
         //console.log('[CLI] Cartridge Type:', romHeader.cartridgeType.readUInt8());
         //console.log('[CLI] Rom Title:', romFile.byteLength);
