@@ -2,7 +2,12 @@
 
 import { Computer } from "./Computer";
 import { toHex } from "../lib/lib_numbers";
-import { isIoAddress, isRamAddress, isRomAddress, MEMORY_MAP } from "../memory_map";
+import {
+    isRomAddress, isVramAddress, isExtRamAddress, isWramAddress,
+    isEchoRamAddress, isOamAddress, isUnusableAddress,
+    isIoAddress, isHramAddress, isIeAddress,
+    MEMORY_MAP,
+} from "../memory_map";
 
 // https://gbdev.io/pandocs/Memory_Map.html
 
@@ -11,185 +16,148 @@ export class MemoryBus {
     private computer: Computer;
     private verbose: boolean = false;
 
+    public vram: StaticArray<u8> = new StaticArray<u8>(MEMORY_MAP.VRAM_SIZE);   // 0x8000-0x9FFF (8 KB)
+    public wram: StaticArray<u8> = new StaticArray<u8>(MEMORY_MAP.WRAM_SIZE);   // 0xC000-0xDFFF (8 KB)
+    public oam: StaticArray<u8>  = new StaticArray<u8>(MEMORY_MAP.OAM_SIZE);    // 0xFE00-0xFE9F (160 bytes)
+    public hram: StaticArray<u8> = new StaticArray<u8>(MEMORY_MAP.HRAM_SIZE);   // 0xFF80-0xFFFE (127 bytes)
+    public ie: u8 = 0;                                                          // 0xFFFF (1 byte)
+
     constructor(computer: Computer) {
         this.computer = computer;
     }
 
+
     public read(address: u16): u8 {
-        let value: u8 = 0;
-
-        if (this.verbose) {
-            console.log(`Reading Memory value at address "${toHex(address)} (${address})"`);
-        }
-
+        // ROM (0x0000-0x7FFF) => MBC
         if (isRomAddress(address)) {
-            const rom = this.computer.rom;
+            const mbc = this.computer.mbc;
+            if (!mbc) throw new Error(`No MBC found. Cannot read at address ${toHex(address)}`);
+            return mbc.read(address);
+        }
 
-            if (!rom) {
-                throw new Error(`No ROM found. Cannot read at address ${toHex(address)}`);
-            }
+        // VRAM (0x8000-0x9FFF)
+        if (isVramAddress(address)) {
+            return this.vram[address - MEMORY_MAP.VRAM_START];
+        }
 
-            value = rom.read(address);
+        // External RAM (0xA000-0xBFFF) => MBC
+        if (isExtRamAddress(address)) {
+            const mbc = this.computer.mbc;
+            if (!mbc) throw new Error(`No MBC found. Cannot read ext RAM at address ${toHex(address)}`);
+            return mbc.read(address);
+        }
 
-        } else if (isRamAddress(address)) {
-            const ram = this.computer.ram;
+        // WRAM (0xC000-0xDFFF)
+        if (isWramAddress(address)) {
+            return this.wram[address - MEMORY_MAP.WRAM_START];
+        }
 
-            if (!ram) {
-                throw new Error(`No RAM found. Cannot read at address ${toHex(address)}`);
-            }
+        // Echo RAM (0xE000-0xFDFF) => miroir de WRAM
+        if (isEchoRamAddress(address)) {
+            const mirrorAddr = address - MEMORY_MAP.ECHO_RAM_START;  // 0x0000-0x1DFF
+            return this.wram[mirrorAddr];
+        }
 
-            const ramRelativeAddress = address - MEMORY_MAP.RAM_START;
+        // OAM (0xFE00-0xFE9F)
+        if (isOamAddress(address)) {
+            return this.oam[address - MEMORY_MAP.OAM_START];
+        }
 
-            value = ram.read(ramRelativeAddress);
+        // Not Usable (0xFEA0-0xFEFF)
+        if (isUnusableAddress(address)) {
+            return 0xFF;
+        }
 
-        } else if (isIoAddress(address)) {
+        // I/O Registers (0xFF00-0xFF7F)
+        if (isIoAddress(address)) {
             const ioManager = this.computer.ioManager;
-
-            if (!ioManager) {
-                throw new Error(`No IO Manager found. Cannot read at address ${toHex(address)}`);
-            }
-
+            if (!ioManager) throw new Error(`No IO Manager found. Cannot read at address ${toHex(address)}`);
             const ioRelativeAddress = address - MEMORY_MAP.IO_START;
-
-            value = ioManager.read(ioRelativeAddress);
-
-        } else {
-            throw new Error(`Address read out of memory range : ${toHex(address)}`);
+            return ioManager.read(ioRelativeAddress);
         }
 
-        if (this.verbose) {
-            //console.log(`Read Memory value "${toHex(value)}" (${value}) at address "${toHex(address)} (${address})"`);
+        // HRAM (0xFF80-0xFFFE)
+        if (isHramAddress(address)) {
+            return this.hram[address - MEMORY_MAP.HRAM_START];
         }
-        return value;
+
+        // IE Register (0xFFFF)
+        if (isIeAddress(address)) {
+            return this.ie;
+        }
+
+        throw new Error(`Address read out of memory range : ${toHex(address)}`);
     }
 
 
     public write(address: u16, value: u8): void {
-        if (this.verbose) {
-            console.log(`Writing Memory value "${toHex(value)}" (${value}) at address "${toHex(address)} (${address})"`);
-        }
-
+        // ROM (0x0000-0x7FFF) => registres MBC (bank switching)
         if (isRomAddress(address)) {
-            const rom = this.computer.rom;
-
-            if (!rom) {
-                throw new Error(`No ROM found. Cannot write at address ${toHex(address)}`);
-            }
-
-            rom.write(address, value)
+            const mbc = this.computer.mbc;
+            if (!mbc) throw new Error(`No MBC found. Cannot write at address ${toHex(address)}`);
+            mbc.write(address, value);
             return;
         }
 
-        if (isRamAddress(address)) {
-            const ram = this.computer.ram;
-
-            if (!ram) {
-                throw new Error(`No RAM found. Cannot write at address ${toHex(address)}`);
-            }
-
-            const ramRelativeAddress = address - MEMORY_MAP.RAM_START;
-
-            ram.write(ramRelativeAddress, value);
-            return
+        // VRAM (0x8000-0x9FFF)
+        if (isVramAddress(address)) {
+            this.vram[address - MEMORY_MAP.VRAM_START] = value;
+            return;
         }
 
+        // External RAM (0xA000-0xBFFF) => MBC
+        if (isExtRamAddress(address)) {
+            const mbc = this.computer.mbc;
+            if (!mbc) throw new Error(`No MBC found. Cannot write ext RAM at address ${toHex(address)}`);
+            mbc.write(address, value);
+            return;
+        }
+
+        // WRAM (0xC000-0xDFFF)
+        if (isWramAddress(address)) {
+            this.wram[address - MEMORY_MAP.WRAM_START] = value;
+            return;
+        }
+
+        // Echo RAM (0xE000-0xFDFF) => miroir de WRAM
+        if (isEchoRamAddress(address)) {
+            const mirrorAddr = address - MEMORY_MAP.ECHO_RAM_START;
+            this.wram[mirrorAddr] = value;
+            return;
+        }
+
+        // OAM (0xFE00-0xFE9F)
+        if (isOamAddress(address)) {
+            this.oam[address - MEMORY_MAP.OAM_START] = value;
+            return;
+        }
+
+        // Not Usable (0xFEA0-0xFEFF)
+        if (isUnusableAddress(address)) {
+            return; // Ignoré silencieusement
+        }
+
+        // I/O Registers (0xFF00-0xFF7F)
         if (isIoAddress(address)) {
             const ioManager = this.computer.ioManager;
-
-            if (!ioManager) {
-                throw new Error(`No IO Manager found. Cannot write at address ${toHex(address)}`);
-            }
-
+            if (!ioManager) throw new Error(`No IO Manager found. Cannot write at address ${toHex(address)}`);
             const ioRelativeAddress = address - MEMORY_MAP.IO_START;
-
             ioManager.write(ioRelativeAddress, value);
-            return
+            return;
+        }
+
+        // HRAM (0xFF80-0xFFFE)
+        if (isHramAddress(address)) {
+            this.hram[address - MEMORY_MAP.HRAM_START] = value;
+            return;
+        }
+
+        // IE Register (0xFFFF)
+        if (isIeAddress(address)) {
+            this.ie = value;
+            return;
         }
 
         throw new Error(`Address write out of memory range : ${toHex(address)}`);
     }
 }
-
-
-abstract class Memory {
-    protected storage: StaticArray<u8>;
-    protected size: u32;
-    protected name: string;
-
-    constructor(name: string, size: i32) {
-        this.name = name;
-        this.storage = new StaticArray<u8>(size);
-        this.size = size;
-    }
-
-    public read(address: u16): u8 {
-        if (address < 0 || address > <u16>this.storage.length - 1) {
-            throw new Error(`Memory "${this.name}" Read Address out of range : ${toHex(address)}`);
-        }
-
-        return this.storage[address];
-    }
-
-    public write(address: u16, value: u8): void {
-        if (address < 0 || address > <u16>this.storage.length - 1) {
-            throw new Error(`Memory "${this.name}" Write Address out of range : ${toHex(address)}`);
-        }
-
-        this.storage[address] = value;
-    }
-
-
-    public reset(): void {
-        this.storage = new StaticArray<u8>(this.size);
-    }
-}
-
-
-
-export class Rom extends Memory {
-    private computer: Computer;
-
-    constructor(computer: Computer, storage: StaticArray<u8>) {
-        super('ROM', 0xFFFF);
-        this.computer = computer;
-        this.storage = storage;
-        //console.log(`ROM size (init): ${this.storage.length}`)
-    }
-
-    public read(address: u16): u8 {
-        //console.log(`Reading ROM value at address "${toHex(address)} (${address})"`);
-        //console.log(`Rom size (read): ${this.storage.length}`)
-        let value: u8 = super.read(address);
-        return value;
-    }
-
-    public write(address: u16, value: u8): void {
-        //console.log(`Writing ROM value "${toHex(value)}" (${value}) at address "${toHex(address)} (${address})"`);
-        super.write(address, value);
-    }
-}
-
-
-export class Ram extends Memory {
-    private computer: Computer;
-
-    constructor(computer: Computer) {
-        super('RAM', MEMORY_MAP.RAM_END - MEMORY_MAP.RAM_START);
-        this.computer = computer;
-
-        console.log(`RAM size (init): ${this.storage.length}`)
-    }
-
-    public read(ramRelativeAddress: u16): u8 {
-        //console.log(`Reading RAM value at address "${toHex(address)} (${address})"`);
-        let value: u8 = super.read(ramRelativeAddress);
-        return value;
-    }
-
-    public write(ramRelativeAddress: u16, value: u8): void {
-        //console.log(`Writing RAM value "${toHex(value)}" (${value}) at address "${toHex(address)} (${address})"`);
-        super.write(ramRelativeAddress, value);
-    }
-
-}
-

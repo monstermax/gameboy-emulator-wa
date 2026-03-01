@@ -2,7 +2,8 @@
 
 import { Cpu } from "./Cpu";
 import { IoManager } from "./IoManager";
-import { MemoryBus, Ram, Rom } from "./Memory";
+import { Mbc } from "./Mbc";
+import { MemoryBus } from "./Memory";
 
 import { InstructionSet } from '../types/cpu_instructions.types';
 
@@ -10,18 +11,15 @@ import { InstructionSet } from '../types/cpu_instructions.types';
 export class Computer {
     public memoryBus: MemoryBus | null = null;
     public cpu: Cpu | null = null;
-    public rom: Rom | null;
-    public ram: Ram | null;
+    public mbc: Mbc | null = null;
     public ioManager: IoManager | null = null;
     public instructionsSet: InstructionSet | null;
 
     constructor() {
         this.memoryBus = new MemoryBus(this);
         this.cpu = new Cpu(this);
-        this.rom = null;
-        this.ram = null;
         this.ioManager = new IoManager(this);
-        this.instructionsSet = null 
+        this.instructionsSet = null;
     }
 
 

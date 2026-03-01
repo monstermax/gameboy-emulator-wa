@@ -76,11 +76,8 @@ export class Cpu {
     }
 
     readMemory16(address: u16): u16 {
-        const memoryBus = this.computer.memoryBus;
-        if (!memoryBus) throw new Error(`MemoryBus not found`);
-
-        const low = memoryBus.read(address);
-        const high = memoryBus.read(address + 1);
+        const low = this.readMemory8(address);
+        const high = this.readMemory8(address + 1);
         const value = low + high * 256;
         return value;
     }
@@ -93,14 +90,11 @@ export class Cpu {
     }
 
     writeMemory16(address: u16, value: u8): void {
-        const memoryBus = this.computer.memoryBus;
-        if (!memoryBus) throw new Error(`MemoryBus not found`);
-
         const low = low16(value);
         const high = high16(value);
 
-        memoryBus.write(address, low);
-        memoryBus.write(address + 1, high);
+        this.writeMemory8(address, low);
+        this.writeMemory8(address + 1, high);
     }
 }
 
