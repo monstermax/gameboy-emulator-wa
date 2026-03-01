@@ -9,19 +9,17 @@ async function main() {
     const emulator = new EmulatorCli(romFilename)
 
     await initEmulator(emulator);
+
+    emulator.runEmulatorCycles()
 }
 
 
-async function initEmulator(emulator: EmulatorCli) {
+async function initEmulator(emulator: EmulatorCli): Promise<void> {
     await emulator.init()
-
-    if (!emulator.wasmExports) {
-        console.error(`Cannot find wasmExports`)
-        process.exit(1);
-    }
-
-    emulator.wasmExports.runEmulator()
+    console.log(`Emulator initialized`)
 }
+
+
 
 
 

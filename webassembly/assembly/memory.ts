@@ -9,7 +9,7 @@ import { isIoAddress, isRamAddress, isRomAddress, MEMORY_MAP } from "./memory_ma
 
 export class MemoryBus {
     private computer: Computer;
-    private verbose: boolean = false;
+    private verbose: boolean = true;
 
     constructor(computer: Computer) {
         this.computer = computer;
@@ -18,10 +18,14 @@ export class MemoryBus {
     public read(address: u16): u8 {
         let value: u8 = 0;
 
+        if (this.verbose) {
+            console.log(`Reading Memory value at address "${toHex(address)} (${address})"`);
+        }
+
         if (isRomAddress(address)) {
             const rom = this.computer.rom;
 
-            if (!rom || !rom.read) {
+            if (!rom) {
                 throw new Error(`No ROM found. Cannot read at address ${toHex(address)}`);
             }
 
@@ -52,14 +56,14 @@ export class MemoryBus {
         }
 
         if (this.verbose) {
-            console.log(`Reading Memory value "${toHex(value)}" (${value}) at address "${toHex(address)} (${address})"`);
+            //console.log(`Read Memory value "${toHex(value)}" (${value}) at address "${toHex(address)} (${address})"`);
         }
         return value;
     }
 
 
     public write(address: u16, value: u8): void {
-        if (this.verbose && ! isRomAddress(address)) {
+        if (this.verbose) {
             console.log(`Writing Memory value "${toHex(value)}" (${value}) at address "${toHex(address)} (${address})"`);
         }
 
@@ -140,11 +144,23 @@ export class Rom extends Memory {
     private computer: Computer;
 
     constructor(computer: Computer, storage: StaticArray<u8>) {
-        super(MEMORY_MAP.ROM_END - MEMORY_MAP.ROM_START);
+        super(0xFFFF);
         this.computer = computer;
         this.storage = storage;
+        //console.log(`Rom size (init): ${this.storage.length}`)
     }
 
+    public read(address: u16): u8 {
+        //console.log(`Reading ROM value at address "${toHex(address)} (${address})"`);
+        //console.log(`Rom size (read): ${this.storage.length}`)
+        let value: u8 = super.read(address);
+        return value;
+    }
+
+    public write(address: u16, value: u8): void {
+        //console.log(`Writing ROM value "${toHex(value)}" (${value}) at address "${toHex(address)} (${address})"`);
+        super.write(address, value);
+    }
 }
 
 
@@ -154,6 +170,17 @@ export class Ram extends Memory {
     constructor(computer: Computer) {
         super(MEMORY_MAP.RAM_END - MEMORY_MAP.RAM_START);
         this.computer = computer;
+    }
+
+    public read(address: u16): u8 {
+        //console.log(`Reading RAM value at address "${toHex(address)} (${address})"`);
+        let value: u8 = super.read(address);
+        return value;
+    }
+
+    public write(address: u16, value: u8): void {
+        //console.log(`Writing RAM value "${toHex(value)}" (${value}) at address "${toHex(address)} (${address})"`);
+        super.write(address, value);
     }
 
 }

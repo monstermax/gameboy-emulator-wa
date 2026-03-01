@@ -13,6 +13,7 @@ export const useEmulator = (romFilename: string): EmulatorHook => {
 
         const _init = async () => {
             await initEmulator(emulator);
+            emulator.runEmulatorCycles()
         }
 
         const timer = setTimeout(_init, 1);
@@ -20,7 +21,13 @@ export const useEmulator = (romFilename: string): EmulatorHook => {
     }, [])
 
 
-    const emulatorHook = {
+    async function initEmulator(emulator: EmulatorWeb): Promise<void> {
+        await emulator.init()
+        console.log(`Emulator initialized`)
+    }
+
+
+    const emulatorHook: EmulatorHook = {
         emulator,
     }
 
@@ -33,15 +40,4 @@ export type EmulatorHook = {
 }
 
 
-
-async function initEmulator(emulator: EmulatorWeb) {
-    await emulator.init()
-
-    if (!emulator.wasmExports) {
-        console.error(`Cannot find wasmExports`)
-        process.exit(1);
-    }
-
-    emulator.wasmExports.runEmulator()
-}
 

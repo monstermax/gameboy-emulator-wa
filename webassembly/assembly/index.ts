@@ -1,38 +1,58 @@
 
+import { JSON } from 'json-as';
+
 import { Computer } from "./Computer";
 import { Rom } from "./memory";
 import { getRomHeader } from "./rom_utils";
 
+import { InstructionSet } from './cpu_instructions.types';
 
-const gameboy = new Computer;
 
 
-export function runEmulator(): void {
-    gameboy.cpu.registers.PC = 0x0150;
-    gameboy.cpu.registers.SP = 0x0150;
 
-    for (let i=0; i<100; i++) {
-        gameboy.cpu.runCycle();
+export function runEmulator(): Computer {
+    const computer = new Computer;
+
+    const cpu = computer.cpu;
+    if (!cpu) throw new Error(`Cpu not found`);
+
+    cpu.registers.PC = 0x0150;
+    //computer.cpu.registers.SP = 0x0000;
+
+    return computer;
+}
+
+
+export function runCycles(computer: Computer, cycles: i32): void {
+    const cpu = computer.cpu;
+    if (!cpu) throw new Error(`Cpu not found`);
+
+    for (let i=0; i<cycles; i++) {
+        cpu.runCycle();
     }
 
-
-    console.log('WASM Completed')
+    console.log('[WASM] WASM Completed')
 }
 
 
+export function injectInstructionsSet(computer: Computer, json: string): void {
+    computer.instructionsSet = JSON.parse<InstructionSet>(json);
 
-export function injectInstructionsSet(): void {
-
+    console.log('[WASM] Instructions Loaded')
 }
 
 
-export function injectRom(data: Uint8Array): void {
+export function injectRom(computer: Computer, data: Uint8Array): void {
     const romHeader = getRomHeader(data);romHeader
     //console.log('romHeader', romHeader);
 
     let romTitle = String.UTF8.decode(romHeader.romTitle.buffer);
-    console.log('[INDEX] romTitle: ' + romTitle);
+    console.log('[WASM] Rom Title: ' + romTitle);
 
-    let staticArr = changetype<StaticArray<u8>>(data.slice().buffer);
-    gameboy.rom = new Rom(gameboy, staticArr);
+    let staticArr = changetype<StaticArray<u8>>(data.buffer);
+    computer.rom = new Rom(computer, staticArr);
+
+    console.log(`[WASM] Rom Loaded (${staticArr.length} bytes)`)
 }
+
+
