@@ -145,10 +145,36 @@ export class IoManager {
 
     // === Joypad ===
 
+    //  Button state bits (active LOW on real GB, but we store active HIGH here):
+    //    bit 0 = A        bit 4 = Right
+    //    bit 1 = B        bit 5 = Left
+    //    bit 2 = Select   bit 6 = Up
+    //    bit 3 = Start    bit 7 = Down
+    public joypadState: u8 = 0x00;  // no buttons pressed
+
     private readJoypad(): u8 {
         const select = this.registers[JOYP] & 0x30;
-        let buttons: u8 = 0x0F;  // TODO: real input
-        return select | buttons | 0xC0;
+        let result: u8 = 0x0F; // all released (active LOW = 1)
+
+        // P14 = bit 4: direction keys selected (active LOW)
+        if ((select & 0x10) == 0) {
+            // Read direction keys (bits 4-7 of joypadState)
+            if (this.joypadState & 0x10) result &= ~0x01; // Right
+            if (this.joypadState & 0x20) result &= ~0x02; // Left
+            if (this.joypadState & 0x40) result &= ~0x04; // Up
+            if (this.joypadState & 0x80) result &= ~0x08; // Down
+        }
+
+        // P15 = bit 5: button keys selected (active LOW)
+        if ((select & 0x20) == 0) {
+            // Read button keys (bits 0-3 of joypadState)
+            if (this.joypadState & 0x01) result &= ~0x01; // A
+            if (this.joypadState & 0x02) result &= ~0x02; // B
+            if (this.joypadState & 0x04) result &= ~0x04; // Select
+            if (this.joypadState & 0x08) result &= ~0x08; // Start
+        }
+
+        return select | result | 0xC0;
     }
 
 
@@ -166,24 +192,3 @@ export class IoManager {
         }
     }
 }
-
-/*
-
-$FF00		    DMG	Joypad input
-$FF01	$FF02	DMG	Serial transfer
-$FF04	$FF07	DMG	Timer and divider
-$FF0F		    DMG	Interrupts
-$FF10	$FF26	DMG	Audio
-$FF30	$FF3F	DMG	Wave pattern
-$FF40	$FF4B	DMG	LCD Control, Status, Position, Scrolling, and Palettes
-$FF46		    DMG	OAM DMA transfer
-$FF4C	$FF4D	CGB	KEY0 and KEY1
-$FF4F		    CGB	VRAM Bank Select
-$FF50		    DMG	Boot ROM mapping control
-$FF51	$FF55	CGB	VRAM DMA
-$FF56		    CGB	IR port
-$FF68	$FF6B	CGB	BG / OBJ Palettes
-$FF6C		    CGB	Object priority mode
-$FF70		    CGB	WRAM Bank Select
-
-*/

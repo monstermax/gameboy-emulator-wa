@@ -7,7 +7,7 @@ import { GameboyScreen } from './components/GameboyScreen'
 
 //const romFilename = "SuperMarioLand.World.Rev1.gb";
 const romFilename = "Tetris.World.RevA.gb";
-//const romFilename = "DuckTales.USA.gb";
+//const romFilename = "Double.Dragon.II.USA.Europe.gb";
 
 
 function App() {

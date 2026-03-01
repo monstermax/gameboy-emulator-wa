@@ -46,6 +46,24 @@ export class EmulatorWeb {
     }
 
 
+    /**
+     * Load a ROM file into the emulator.
+     * Can be called multiple times to switch ROMs.
+     */
+    async loadRom(romFilename: string): Promise<void> {
+        asserts(this.wasmExports, "wasmExports required — call init() first");
+        asserts(this.computer, "computer required — call init() first");
+
+        const romFile = await fetchRom(romFilename)
+
+        const romHeader = getRomHeader(romFile);
+        console.log('[WEB] romHeader', romHeader);
+
+        const romFileArr: Uint8Array = new Uint8Array(romFile);
+        this.wasmExports.injectRom(this.computer, romFileArr);
+    }
+
+
     private async mountWasm(): Promise<void> {
         const imports: { env: unknown } = {
             env: {},
@@ -63,27 +81,6 @@ export class EmulatorWeb {
 
         const json = JSON.stringify(instructionsSet);
         this.wasmExports.injectInstructionsSet(this.computer, json);
-    }
-
-
-    /**
-     * Load a ROM file into the emulator.
-     * Can be called multiple times to switch ROMs.
-     */
-    async loadRom(romFilename: string): Promise<void> {
-        asserts(this.wasmExports, "wasmExports required — call init() first");
-        asserts(this.computer, "computer required — call init() first");
-
-        const romFile = await fetchRom(romFilename)
-
-        const romHeader = getRomHeader(romFile);
-        console.log('[WEB] romHeader', romHeader);
-        //console.log('[WEB] Cartridge Type:', romHeader.cartridgeType.readUInt8());
-        //console.log('[WEB] Rom Title:', romFile.byteLength);
-        //console.log('[WEB] Rom Size:', romHeader.romTitle.toString('ascii'));
-
-        const romFileArr: Uint8Array = new Uint8Array(romFile);
-        this.wasmExports.injectRom(this.computer, romFileArr);
     }
 
 
@@ -115,6 +112,7 @@ export class EmulatorWeb {
     public start(): void {
         if (this.running) return;
         this.running = true;
+        this.bindKeyboard();
         this.loop();
     }
 
@@ -124,6 +122,7 @@ export class EmulatorWeb {
      */
     public stop(): void {
         this.running = false;
+        this.unbindKeyboard();
         if (this.animFrameId) {
             cancelAnimationFrame(this.animFrameId);
             this.animFrameId = 0;
@@ -174,6 +173,62 @@ export class EmulatorWeb {
         }
 
         this.ctx.putImageData(this.imageData, 0, 0);
+    }
+
+
+    // =========================================================================
+    //  Joypad Input
+    // =========================================================================
+
+    //  Bit mapping (active HIGH):
+    //    bit 0 = A        bit 4 = Right
+    //    bit 1 = B        bit 5 = Left
+    //    bit 2 = Select   bit 6 = Up
+    //    bit 3 = Start    bit 7 = Down
+    private joypadState: number = 0x00;
+
+    private keyMap: Record<string, number> = {
+        "ArrowRight": 0x10,
+        "ArrowLeft":  0x20,
+        "ArrowUp":    0x40,
+        "ArrowDown":  0x80,
+        "z":          0x01,  // A
+        "x":          0x02,  // B
+        "Shift":      0x04,  // Select
+        "Enter":      0x08,  // Start
+    };
+
+    private onKeyDown = (e: KeyboardEvent): void => {
+        const bit = this.keyMap[e.key];
+        if (bit !== undefined) {
+            e.preventDefault();
+            this.joypadState |= bit;
+            this.sendJoypad();
+        }
+    }
+
+    private onKeyUp = (e: KeyboardEvent): void => {
+        const bit = this.keyMap[e.key];
+        if (bit !== undefined) {
+            e.preventDefault();
+            this.joypadState &= ~bit;
+            this.sendJoypad();
+        }
+    }
+
+    private sendJoypad(): void {
+        if (!this.wasmExports || !this.computer) return;
+        this.wasmExports.setJoypad(this.computer, this.joypadState);
+    }
+
+    private bindKeyboard(): void {
+        window.addEventListener("keydown", this.onKeyDown);
+        window.addEventListener("keyup", this.onKeyUp);
+    }
+
+    private unbindKeyboard(): void {
+        window.removeEventListener("keydown", this.onKeyDown);
+        window.removeEventListener("keyup", this.onKeyUp);
     }
 
 

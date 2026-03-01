@@ -1,4 +1,4 @@
-// Gameboy Emulator
+// Gameboy Emulator - WebAssembly Entrypoint
 
 import { JSON } from 'json-as';
 
@@ -8,6 +8,8 @@ import { getRomHeader } from "./model/RomHeader";
 
 import { InstructionSet } from './types/cpu_instructions.types';
 
+
+// Gameboy Emulator
 
 // Screen constants (exported for the frontend)
 export const SCREEN_WIDTH: i32 = 160;
@@ -75,6 +77,24 @@ export function injectInstructionsSet(computer: Computer, json: string): void {
     if (!computer) throw new Error(`Computer not found`);
 
     computer.instructionsSet = JSON.parse<InstructionSet>(json);
+}
+
+
+/**
+ * Set joypad button state.
+ * Bits (active HIGH — set bit = button pressed):
+ *   bit 0 = A        bit 4 = Right
+ *   bit 1 = B        bit 5 = Left
+ *   bit 2 = Select   bit 6 = Up
+ *   bit 3 = Start    bit 7 = Down
+ */
+export function setJoypad(computer: Computer, state: u8): void {
+    if (!computer) throw new Error(`Computer not found`);
+
+    const ioManager = computer.ioManager;
+    if (!ioManager) throw new Error(`IoManager not found`);
+
+    ioManager.joypadState = state;
 }
 
 
