@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useEmulator, type EmulatorHook } from './hooks/useEmulator'
 import { GameboyScreen } from './components/GameboyScreen'
@@ -12,12 +12,19 @@ const romFilename = "Tetris.World.RevA.gb";
 
 
 function App() {
-    const { emulatorStart, emulatorStop, isRunning: emulatorIsRunning, canvasRef, ready } = useEmulator(romFilename)
+    const { emulator, emulatorStart, emulatorStop, isRunning: emulatorIsRunning, canvasRef, ready } = useEmulator(romFilename)
 
     useEffect(() => {
         if (!ready) return;
         console.log('[WEB] Emulator ready, rendering started');
     }, [ready])
+
+    const handleLoadGame = (filepath: string) => {
+        console.log(`Loading game ${filepath}`)
+        emulatorStop()
+        emulator.loadRom(filepath)
+        emulatorStart()
+    }
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: 10, justifyContent: "center" }}>
@@ -31,7 +38,7 @@ function App() {
                 emulatorIsRunning={emulatorIsRunning}
             />
 
-            <GameSelector />
+            <GameSelector handleLoadGame={handleLoadGame} selectedGame={romFilename} />
 
             {!ready && <p>Loading...</p>}
         </div>
@@ -65,10 +72,43 @@ const EmulatorControl: React.FC<EmulatorControlProps> = (props) => {
 }
 
 
-const GameSelector: React.FC = () => {
+export type GameSelectorProps = {
+    selectedGame?: string;
+    handleLoadGame: (filepath: string) => void;
+}
+
+const GameSelector: React.FC<GameSelectorProps> = (props) => {
+    const { handleLoadGame, selectedGame } = props;
+
+    const [gamesList, setGamesList] = useState<string[]>([]);
+
+    const gamesListUrl = "/roms_list.json";
+
+    useEffect(() => {
+        const _load = async () => {
+            const response = await fetch(gamesListUrl)
+            const _gamesList = await response.json() as string[];
+            setGamesList(_gamesList);
+        }
+
+        const timer = setTimeout(_load, 1);
+        return () => clearTimeout(timer);
+    }, [])
+
+
     return (
         <>
             Select ROM
+
+            <select onChange={(event) => handleLoadGame(event.target.value)}>
+                <option value=""></option>
+
+                {gamesList.map(gameFilepath => 
+                    <option key={gameFilepath} value={gameFilepath} selected={gameFilepath === selectedGame}>
+                        {gameFilepath}
+                    </option>
+                )}
+            </select>
         </>
     );
 }
