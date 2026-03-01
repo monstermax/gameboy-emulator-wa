@@ -7,7 +7,7 @@ import { asserts } from "./utils";
 const registers8 = [
     'A', 'B', 'C', 'D', // Data 8-bit Registers
     'H', 'L',           // Data 8-bit Registers
-    'F',                // Flags 8-bit Register
+    'F',                // Flags 8-bit Register ( bit7 = z = Zero flag | bit6 = n = Subtraction flag | bit5 = h = Half Carry flag | bit4 = c = Carry flag)
 ];
 
 const registers16 = [
