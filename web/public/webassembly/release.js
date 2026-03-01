@@ -26,6 +26,19 @@ export async function instantiate(module, imports = {}) {
   };
   const { exports } = await WebAssembly.instantiate(module, adaptedImports);
   const memory = exports.memory || imports.env.memory;
+  const adaptedExports = Object.setPrototypeOf({
+    injectRom(data) {
+      // assembly/index/injectRom(~lib/arraybuffer/ArrayBuffer) => void
+      data = __lowerBuffer(data) || __notnull();
+      exports.injectRom(data);
+    },
+  }, exports);
+  function __lowerBuffer(value) {
+    if (value == null) return 0;
+    const pointer = exports.__new(value.byteLength, 1) >>> 0;
+    new Uint8Array(memory.buffer).set(new Uint8Array(value), pointer);
+    return pointer;
+  }
   function __liftString(pointer) {
     if (!pointer) return null;
     const
@@ -37,5 +50,8 @@ export async function instantiate(module, imports = {}) {
     while (end - start > 1024) string += String.fromCharCode(...memoryU16.subarray(start, start += 1024));
     return string + String.fromCharCode(...memoryU16.subarray(start, end));
   }
-  return exports;
+  function __notnull() {
+    throw TypeError("value must not be null");
+  }
+  return adaptedExports;
 }

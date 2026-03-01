@@ -4,8 +4,8 @@
  (type $2 (func (param i32 i32) (result i32)))
  (type $3 (func (param i32)))
  (type $4 (func (param i32 i32 i32) (result i32)))
- (type $5 (func (param i32 i32 i32)))
- (type $6 (func))
+ (type $5 (func))
+ (type $6 (func (param i32 i32 i32)))
  (type $7 (func (param i32 i32 i32 i32)))
  (type $8 (func (param i32 i32 i64) (result i32)))
  (type $9 (func (result i32)))
@@ -14,6 +14,7 @@
  (type $12 (func (param i64 i32) (result i32)))
  (type $13 (func (param i32 i64 i32 i32)))
  (type $14 (func (param f64) (result f64)))
+ (type $15 (func (param i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32 i32) (result i32)))
  (import "env" "abort" (func $~lib/builtins/abort (param i32 i32 i32 i32)))
  (import "env" "console.warn" (func $~lib/bindings/dom/console.warn (param i32)))
  (import "env" "console.log" (func $~lib/bindings/dom/console.log (param i32)))
@@ -45,10 +46,10 @@
  (global $~lib/native/ASC_RUNTIME i32 (i32.const 2))
  (global $~lib/native/ASC_SHRINK_LEVEL i32 (i32.const 0))
  (global $~argumentsLength (mut i32) (i32.const 0))
- (global $~lib/rt/__rtti_base i32 (i32.const 4976))
- (global $~lib/memory/__data_end i32 (i32.const 5076))
- (global $~lib/memory/__stack_pointer (mut i32) (i32.const 37844))
- (global $~lib/memory/__heap_base i32 (i32.const 37844))
+ (global $~lib/rt/__rtti_base i32 (i32.const 5440))
+ (global $~lib/memory/__data_end i32 (i32.const 5548))
+ (global $~lib/memory/__stack_pointer (mut i32) (i32.const 38316))
+ (global $~lib/memory/__heap_base i32 (i32.const 38316))
  (memory $0 1)
  (data $0 (i32.const 12) "\1c\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\02\00\00\00A\00\00\00\00\00\00\00\00\00\00\00")
  (data $1 (i32.const 44) "\1c\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\02\00\00\00B\00\00\00\00\00\00\00\00\00\00\00")
@@ -113,18 +114,33 @@
  (data $60 (i32.const 4572) "\1c\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\04\00\00\00 \00(\00\00\00\00\00\00\00\00\00")
  (data $61 (i32.const 4604) "\1c\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\04\00\00\00)\00\"\00\00\00\00\00\00\00\00\00")
  (data $62 (i32.const 4636) "<\00\00\00\03\00\00\00\00\00\00\00\16\00\00\00$\00\00\00`\11\00\00\00\00\00\00\a0\11\00\00\00\00\00\00\c0\11\00\00\00\00\00\00\f0\11\00\00\00\00\00\00\10\12\00\00\00\00\00\00\00\00\00\00")
- (data $63 (i32.const 4700) "\1c\00\00\00\00\00\00\00\00\00\00\00\14\00\00\00\08\00\00\00\04\00\00\00\00\00\00\00\00\00\00\00")
- (data $64 (i32.const 4732) "\1c\00\00\00\00\00\00\00\00\00\00\00\15\00\00\00\08\00\00\00\05\00\00\00\00\00\00\00\00\00\00\00")
- (data $65 (i32.const 4764) "\1c\00\00\00\00\00\00\00\00\00\00\00\15\00\00\00\08\00\00\00\06\00\00\00\00\00\00\00\00\00\00\00")
- (data $66 (i32.const 4796) ",\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\1a\00\00\00I\00n\00s\00t\00r\00u\00c\00t\00i\00o\00n\00 \00\"\00\00\00")
- (data $67 (i32.const 4844) ",\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\16\00\00\00\"\00 \00n\00o\00t\00 \00f\00o\00u\00n\00d\00\00\00\00\00\00\00")
- (data $68 (i32.const 4892) "\1c\00\00\00\03\00\00\00\00\00\00\00\16\00\00\00\0c\00\00\00\d0\12\00\00\00\00\00\00\00\13\00\00")
- (data $69 (i32.const 4924) ",\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\1c\00\00\00W\00A\00S\00M\00 \00C\00o\00m\00p\00l\00e\00t\00e\00d\00")
- (data $70 (i32.const 4976) "\18\00\00\00 \00\00\00 \00\00\00 \00\00\00\00\00\00\00\02A\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00P\00\82\00\90\00\82\00 \00\00\00\00\00\00\00A\00\00\00\00\00\00\00\00\00\00\00d\00\00\00\00\00\00\00\00\00\00\00 \00\00\00\00\00\00\00\00\00\00\00\04A\00\00\00\00\00\00")
- (table $0 7 7 funcref)
- (elem $0 (i32.const 1) $assembly/cpu/Cpu#constructor~anonymous|0 $assembly/cpu/Cpu#constructor~anonymous|1 $assembly/memory/Memory#read $assembly/cpu/Cpu#loadInstructionActions~anonymous|0 $assembly/cpu/Cpu#loadInstructionActions~anonymous|1 $assembly/cpu/Cpu#loadInstructionActions~anonymous|2)
+ (data $63 (i32.const 4700) "L\00\00\00\00\00\00\00\00\00\00\00\02\00\00\000\00\00\00[\00C\00P\00U\00]\00 \00C\00u\00r\00r\00e\00n\00t\00 \00a\00d\00d\00r\00e\00s\00s\00 \00:\00 \00\00\00\00\00\00\00\00\00\00\00\00\00")
+ (data $64 (i32.const 4780) ",\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\1a\00\00\00 \00=\00>\00 \00o\00p\00c\00o\00d\00e\00 \00=\00 \00\00\00")
+ (data $65 (i32.const 4828) ",\00\00\00\03\00\00\00\00\00\00\00\16\00\00\00\10\00\00\00p\12\00\00\00\00\00\00\c0\12\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00")
+ (data $66 (i32.const 4876) "\1c\00\00\00\00\00\00\00\00\00\00\00\14\00\00\00\08\00\00\00\04\00\00\00\00\00\00\00\00\00\00\00")
+ (data $67 (i32.const 4908) "\1c\00\00\00\00\00\00\00\00\00\00\00\15\00\00\00\08\00\00\00\05\00\00\00\00\00\00\00\00\00\00\00")
+ (data $68 (i32.const 4940) "\1c\00\00\00\00\00\00\00\00\00\00\00\15\00\00\00\08\00\00\00\06\00\00\00\00\00\00\00\00\00\00\00")
+ (data $69 (i32.const 4972) ",\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\1a\00\00\00I\00n\00s\00t\00r\00u\00c\00t\00i\00o\00n\00 \00\"\00\00\00")
+ (data $70 (i32.const 5020) ",\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\16\00\00\00\"\00 \00n\00o\00t\00 \00f\00o\00u\00n\00d\00\00\00\00\00\00\00")
+ (data $71 (i32.const 5068) "\1c\00\00\00\03\00\00\00\00\00\00\00\16\00\00\00\0c\00\00\00\80\13\00\00\00\00\00\00\b0\13\00\00")
+ (data $72 (i32.const 5100) ",\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\1c\00\00\00W\00A\00S\00M\00 \00C\00o\00m\00p\00l\00e\00t\00e\00d\00")
+ (data $73 (i32.const 5148) "\1c\00\00\00\00\00\00\00\00\00\00\00\19\00\00\00\08\00\00\00\07\00\00\00\00\00\00\00\00\00\00\00")
+ (data $74 (i32.const 5180) "<\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00\"\00\00\00[\00I\00N\00D\00E\00X\00]\00 \00r\00o\00m\00T\00i\00t\00l\00e\00:\00\00\00\00\00\00\00\00\00\00\00")
+ (data $75 (i32.const 5244) "<\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00(\00\00\00[\00o\00b\00j\00e\00c\00t\00 \00A\00r\00r\00a\00y\00B\00u\00f\00f\00e\00r\00]\00\00\00\00\00")
+ (data $76 (i32.const 5308) "<\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00*\00\00\00O\00b\00j\00e\00c\00t\00 \00a\00l\00r\00e\00a\00d\00y\00 \00p\00i\00n\00n\00e\00d\00\00\00")
+ (data $77 (i32.const 5372) "<\00\00\00\00\00\00\00\00\00\00\00\02\00\00\00(\00\00\00O\00b\00j\00e\00c\00t\00 \00i\00s\00 \00n\00o\00t\00 \00p\00i\00n\00n\00e\00d\00\00\00\00\00")
+ (data $78 (i32.const 5440) "\1a\00\00\00 \00\00\00 \00\00\00 \00\00\00\00\00\00\00\02A\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00P\00\82\00\90\00\82\00 \00\00\00\00\00\00\00A\00\00\00\00\00\00\00\00\00\00\00d\00\00\00\00\00\00\00\00\00\00\00 \00\00\00\00\00\00\00\00\00\00\00\04A\00\00\00\00\00\00\00\00\00\00\00\00\00\00")
+ (table $0 8 8 funcref)
+ (elem $0 (i32.const 1) $assembly/cpu/Cpu#constructor~anonymous|0 $assembly/cpu/Cpu#constructor~anonymous|1 $assembly/memory/Memory#read $assembly/cpu/Cpu#loadInstructionActions~anonymous|0 $assembly/cpu/Cpu#loadInstructionActions~anonymous|1 $assembly/cpu/Cpu#loadInstructionActions~anonymous|2 $assembly/rom_utils/getRomHeader~anonymous|0)
  (export "runEmulator" (func $assembly/index/runEmulator))
+ (export "injectInstructionsSet" (func $assembly/index/injectInstructionsSet))
+ (export "__new" (func $~lib/rt/itcms/__new))
+ (export "__pin" (func $~lib/rt/itcms/__pin))
+ (export "__unpin" (func $~lib/rt/itcms/__unpin))
+ (export "__collect" (func $~lib/rt/itcms/__collect))
+ (export "__rtti_base" (global $~lib/rt/__rtti_base))
  (export "memory" (memory $0))
+ (export "injectRom" (func $export:assembly/index/injectRom))
  (start $~start)
  (func $~lib/rt/itcms/Object#set:nextWithColor (param $this i32) (param $nextWithColor i32)
   local.get $this
@@ -3539,10 +3555,6 @@
   local.get $this
   i32.load8_u
  )
- (func $assembly/cpu/Instrution#get:bytes (param $this i32) (result i32)
-  local.get $this
-  i32.load16_u offset=2
- )
  (func $assembly/cpu/Cpu#get:actions (param $this i32) (result i32)
   local.get $this
   i32.load offset=12
@@ -3554,6 +3566,272 @@
  (func $assembly/cpu/InstructionActions#get:execute (param $this i32) (result i32)
   local.get $this
   i32.load offset=4
+ )
+ (func $assembly/index/injectInstructionsSet
+ )
+ (func $~lib/arraybuffer/ArrayBuffer#get:byteLength (param $this i32) (result i32)
+  local.get $this
+  i32.const 20
+  i32.sub
+  call $~lib/rt/common/OBJECT#get:rtSize
+  return
+ )
+ (func $assembly/rom_utils/RomHeader#set:entrypoint (param $this i32) (param $entrypoint i32)
+  local.get $this
+  local.get $entrypoint
+  i32.store
+  local.get $this
+  local.get $entrypoint
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:nintendoLogo (param $this i32) (param $nintendoLogo i32)
+  local.get $this
+  local.get $nintendoLogo
+  i32.store offset=4
+  local.get $this
+  local.get $nintendoLogo
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:romTitle (param $this i32) (param $romTitle i32)
+  local.get $this
+  local.get $romTitle
+  i32.store offset=8
+  local.get $this
+  local.get $romTitle
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:manufacturerCode (param $this i32) (param $manufacturerCode i32)
+  local.get $this
+  local.get $manufacturerCode
+  i32.store offset=12
+  local.get $this
+  local.get $manufacturerCode
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:cgbFlag (param $this i32) (param $cgbFlag i32)
+  local.get $this
+  local.get $cgbFlag
+  i32.store offset=16
+  local.get $this
+  local.get $cgbFlag
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:newLicenseeCode (param $this i32) (param $newLicenseeCode i32)
+  local.get $this
+  local.get $newLicenseeCode
+  i32.store offset=20
+  local.get $this
+  local.get $newLicenseeCode
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:sgbFlag (param $this i32) (param $sgbFlag i32)
+  local.get $this
+  local.get $sgbFlag
+  i32.store offset=24
+  local.get $this
+  local.get $sgbFlag
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:cartridgeType (param $this i32) (param $cartridgeType i32)
+  local.get $this
+  local.get $cartridgeType
+  i32.store offset=28
+  local.get $this
+  local.get $cartridgeType
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:romSize (param $this i32) (param $romSize i32)
+  local.get $this
+  local.get $romSize
+  i32.store offset=32
+  local.get $this
+  local.get $romSize
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:ramSize (param $this i32) (param $ramSize i32)
+  local.get $this
+  local.get $ramSize
+  i32.store offset=36
+  local.get $this
+  local.get $ramSize
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:destinationCode (param $this i32) (param $destinationCode i32)
+  local.get $this
+  local.get $destinationCode
+  i32.store offset=40
+  local.get $this
+  local.get $destinationCode
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:oldLicenseeCode (param $this i32) (param $oldLicenseeCode i32)
+  local.get $this
+  local.get $oldLicenseeCode
+  i32.store offset=44
+  local.get $this
+  local.get $oldLicenseeCode
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:maskRomVersionNumber (param $this i32) (param $maskRomVersionNumber i32)
+  local.get $this
+  local.get $maskRomVersionNumber
+  i32.store offset=48
+  local.get $this
+  local.get $maskRomVersionNumber
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:headerChecksum (param $this i32) (param $headerChecksum i32)
+  local.get $this
+  local.get $headerChecksum
+  i32.store offset=52
+  local.get $this
+  local.get $headerChecksum
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#set:globalChecksum (param $this i32) (param $globalChecksum i32)
+  local.get $this
+  local.get $globalChecksum
+  i32.store offset=56
+  local.get $this
+  local.get $globalChecksum
+  i32.const 0
+  call $~lib/rt/itcms/__link
+ )
+ (func $assembly/rom_utils/RomHeader#get:romTitle (param $this i32) (result i32)
+  local.get $this
+  i32.load offset=8
+ )
+ (func $~lib/arraybuffer/ArrayBuffer#toString (param $this i32) (result i32)
+  i32.const 5264
+  return
+ )
+ (func $~lib/rt/itcms/__pin (param $ptr i32) (result i32)
+  (local $obj i32)
+  local.get $ptr
+  if
+   local.get $ptr
+   i32.const 20
+   i32.sub
+   local.set $obj
+   local.get $obj
+   call $~lib/rt/itcms/Object#get:color
+   i32.const 3
+   i32.eq
+   if
+    i32.const 5328
+    i32.const 704
+    i32.const 338
+    i32.const 7
+    call $~lib/builtins/abort
+    unreachable
+   end
+   local.get $obj
+   call $~lib/rt/itcms/Object#unlink
+   local.get $obj
+   global.get $~lib/rt/itcms/pinSpace
+   i32.const 3
+   call $~lib/rt/itcms/Object#linkTo
+  end
+  local.get $ptr
+  return
+ )
+ (func $~lib/rt/itcms/__unpin (param $ptr i32)
+  (local $obj i32)
+  local.get $ptr
+  i32.eqz
+  if
+   return
+  end
+  local.get $ptr
+  i32.const 20
+  i32.sub
+  local.set $obj
+  local.get $obj
+  call $~lib/rt/itcms/Object#get:color
+  i32.const 3
+  i32.ne
+  if
+   i32.const 5392
+   i32.const 704
+   i32.const 352
+   i32.const 5
+   call $~lib/builtins/abort
+   unreachable
+  end
+  global.get $~lib/rt/itcms/state
+  i32.const 1
+  i32.eq
+  if
+   local.get $obj
+   call $~lib/rt/itcms/Object#makeGray
+  else
+   local.get $obj
+   call $~lib/rt/itcms/Object#unlink
+   local.get $obj
+   global.get $~lib/rt/itcms/fromSpace
+   global.get $~lib/rt/itcms/white
+   call $~lib/rt/itcms/Object#linkTo
+  end
+ )
+ (func $~lib/rt/itcms/__collect
+  i32.const 0
+  drop
+  global.get $~lib/rt/itcms/state
+  i32.const 0
+  i32.gt_s
+  if
+   loop $while-continue|0
+    global.get $~lib/rt/itcms/state
+    i32.const 0
+    i32.ne
+    if
+     call $~lib/rt/itcms/step
+     drop
+     br $while-continue|0
+    end
+   end
+  end
+  call $~lib/rt/itcms/step
+  drop
+  loop $while-continue|1
+   global.get $~lib/rt/itcms/state
+   i32.const 0
+   i32.ne
+   if
+    call $~lib/rt/itcms/step
+    drop
+    br $while-continue|1
+   end
+  end
+  global.get $~lib/rt/itcms/total
+  i64.extend_i32_u
+  i32.const 200
+  i64.extend_i32_u
+  i64.mul
+  i64.const 100
+  i64.div_u
+  i32.wrap_i64
+  i32.const 1024
+  i32.add
+  global.set $~lib/rt/itcms/threshold
+  i32.const 0
+  drop
+  i32.const 0
+  drop
  )
  (func $~lib/rt/__visit_globals (param $0 i32)
   (local $1 i32)
@@ -3570,6 +3848,12 @@
   local.get $0
   call $~lib/rt/itcms/__visit
   i32.const 640
+  local.get $0
+  call $~lib/rt/itcms/__visit
+  i32.const 5328
+  local.get $0
+  call $~lib/rt/itcms/__visit
+  i32.const 5392
   local.get $0
   call $~lib/rt/itcms/__visit
   i32.const 2512
@@ -3853,138 +4137,228 @@
   local.get $1
   call $~lib/function/Function<%28this:assembly/memory/Memory%2Cu16%29=>u8>#__visit
  )
+ (func $assembly/rom_utils/RomHeader~visit (param $0 i32) (param $1 i32)
+  (local $2 i32)
+  local.get $0
+  local.get $1
+  call $~lib/object/Object~visit
+  local.get $0
+  i32.load
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=4
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=8
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=12
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=16
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=20
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=24
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=28
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=32
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=36
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=40
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=44
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=48
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=52
+  local.get $1
+  call $~lib/rt/itcms/__visit
+  local.get $0
+  i32.load offset=56
+  local.get $1
+  call $~lib/rt/itcms/__visit
+ )
+ (func $~lib/function/Function<%28~lib/arraybuffer/ArrayBuffer%2Cu32%2Cu32%29=>~lib/arraybuffer/ArrayBuffer>#get:_env (param $this i32) (result i32)
+  local.get $this
+  i32.load offset=4
+ )
+ (func $~lib/function/Function<%28~lib/arraybuffer/ArrayBuffer%2Cu32%2Cu32%29=>~lib/arraybuffer/ArrayBuffer>~visit (param $0 i32) (param $1 i32)
+  local.get $0
+  local.get $1
+  call $~lib/object/Object~visit
+  local.get $0
+  local.get $1
+  call $~lib/function/Function<%28~lib/arraybuffer/ArrayBuffer%2Cu32%2Cu32%29=>~lib/arraybuffer/ArrayBuffer>#__visit
+ )
  (func $~lib/rt/__visit_members (param $0 i32) (param $1 i32)
   block $invalid
-   block $~lib/function/Function<%28this:assembly/memory/Memory%2Cu16%29=>u8>
-    block $~lib/staticarray/StaticArray<~lib/string/String>
-     block $~lib/function/Function<%28assembly/cpu/Cpu%29=>void>
-      block $~lib/function/Function<%28assembly/cpu/Cpu%29=>~lib/typedarray/Uint8Array>
-       block $assembly/ioManager/IoDevices
-        block $assembly/ioManager/IoManager
-         block $assembly/memory/Ram
-          block $~lib/staticarray/StaticArray<u8>
-           block $assembly/memory/Memory
-            block $assembly/memory/Rom
-             block $~lib/typedarray/Uint8Array
-              block $assembly/cpu/InstructionActions
-               block $assembly/cpu/Instrution
-                block $"~lib/map/Map<~lib/string/String,u16>"
-                 block $"~lib/map/Map<~lib/string/String,u8>"
-                  block $assembly/cpu/CpuRegisters
-                   block $assembly/cpu/Cpu
-                    block $assembly/memory/MemoryBus
-                     block $assembly/Computer/Computer
-                      block $~lib/array/Array<~lib/string/String>
-                       block $~lib/arraybuffer/ArrayBufferView
-                        block $~lib/string/String
-                         block $~lib/arraybuffer/ArrayBuffer
-                          block $~lib/object/Object
-                           local.get $0
-                           i32.const 8
-                           i32.sub
-                           i32.load
-                           br_table $~lib/object/Object $~lib/arraybuffer/ArrayBuffer $~lib/string/String $~lib/arraybuffer/ArrayBufferView $~lib/array/Array<~lib/string/String> $assembly/Computer/Computer $assembly/memory/MemoryBus $assembly/cpu/Cpu $assembly/cpu/CpuRegisters $"~lib/map/Map<~lib/string/String,u8>" $"~lib/map/Map<~lib/string/String,u16>" $assembly/cpu/Instrution $assembly/cpu/InstructionActions $~lib/typedarray/Uint8Array $assembly/memory/Rom $assembly/memory/Memory $~lib/staticarray/StaticArray<u8> $assembly/memory/Ram $assembly/ioManager/IoManager $assembly/ioManager/IoDevices $~lib/function/Function<%28assembly/cpu/Cpu%29=>~lib/typedarray/Uint8Array> $~lib/function/Function<%28assembly/cpu/Cpu%29=>void> $~lib/staticarray/StaticArray<~lib/string/String> $~lib/function/Function<%28this:assembly/memory/Memory%2Cu16%29=>u8> $invalid
+   block $~lib/function/Function<%28~lib/arraybuffer/ArrayBuffer%2Cu32%2Cu32%29=>~lib/arraybuffer/ArrayBuffer>
+    block $assembly/rom_utils/RomHeader
+     block $~lib/function/Function<%28this:assembly/memory/Memory%2Cu16%29=>u8>
+      block $~lib/staticarray/StaticArray<~lib/string/String>
+       block $~lib/function/Function<%28assembly/cpu/Cpu%29=>void>
+        block $~lib/function/Function<%28assembly/cpu/Cpu%29=>~lib/typedarray/Uint8Array>
+         block $assembly/ioManager/IoDevices
+          block $assembly/ioManager/IoManager
+           block $assembly/memory/Ram
+            block $~lib/staticarray/StaticArray<u8>
+             block $assembly/memory/Memory
+              block $assembly/memory/Rom
+               block $~lib/typedarray/Uint8Array
+                block $assembly/cpu/InstructionActions
+                 block $assembly/cpu/Instrution
+                  block $"~lib/map/Map<~lib/string/String,u16>"
+                   block $"~lib/map/Map<~lib/string/String,u8>"
+                    block $assembly/cpu/CpuRegisters
+                     block $assembly/cpu/Cpu
+                      block $assembly/memory/MemoryBus
+                       block $assembly/Computer/Computer
+                        block $~lib/array/Array<~lib/string/String>
+                         block $~lib/arraybuffer/ArrayBufferView
+                          block $~lib/string/String
+                           block $~lib/arraybuffer/ArrayBuffer
+                            block $~lib/object/Object
+                             local.get $0
+                             i32.const 8
+                             i32.sub
+                             i32.load
+                             br_table $~lib/object/Object $~lib/arraybuffer/ArrayBuffer $~lib/string/String $~lib/arraybuffer/ArrayBufferView $~lib/array/Array<~lib/string/String> $assembly/Computer/Computer $assembly/memory/MemoryBus $assembly/cpu/Cpu $assembly/cpu/CpuRegisters $"~lib/map/Map<~lib/string/String,u8>" $"~lib/map/Map<~lib/string/String,u16>" $assembly/cpu/Instrution $assembly/cpu/InstructionActions $~lib/typedarray/Uint8Array $assembly/memory/Rom $assembly/memory/Memory $~lib/staticarray/StaticArray<u8> $assembly/memory/Ram $assembly/ioManager/IoManager $assembly/ioManager/IoDevices $~lib/function/Function<%28assembly/cpu/Cpu%29=>~lib/typedarray/Uint8Array> $~lib/function/Function<%28assembly/cpu/Cpu%29=>void> $~lib/staticarray/StaticArray<~lib/string/String> $~lib/function/Function<%28this:assembly/memory/Memory%2Cu16%29=>u8> $assembly/rom_utils/RomHeader $~lib/function/Function<%28~lib/arraybuffer/ArrayBuffer%2Cu32%2Cu32%29=>~lib/arraybuffer/ArrayBuffer> $invalid
+                            end
+                            return
+                           end
+                           return
                           end
                           return
                          end
+                         local.get $0
+                         local.get $1
+                         call $~lib/arraybuffer/ArrayBufferView~visit
                          return
                         end
+                        local.get $0
+                        local.get $1
+                        call $~lib/array/Array<~lib/string/String>~visit
                         return
                        end
                        local.get $0
                        local.get $1
-                       call $~lib/arraybuffer/ArrayBufferView~visit
+                       call $assembly/Computer/Computer~visit
                        return
                       end
                       local.get $0
                       local.get $1
-                      call $~lib/array/Array<~lib/string/String>~visit
+                      call $assembly/memory/MemoryBus~visit
                       return
                      end
                      local.get $0
                      local.get $1
-                     call $assembly/Computer/Computer~visit
+                     call $assembly/cpu/Cpu~visit
                      return
                     end
                     local.get $0
                     local.get $1
-                    call $assembly/memory/MemoryBus~visit
+                    call $assembly/cpu/CpuRegisters~visit
                     return
                    end
                    local.get $0
                    local.get $1
-                   call $assembly/cpu/Cpu~visit
+                   call $"~lib/map/Map<~lib/string/String,u8>~visit"
                    return
                   end
                   local.get $0
                   local.get $1
-                  call $assembly/cpu/CpuRegisters~visit
+                  call $"~lib/map/Map<~lib/string/String,u16>~visit"
                   return
                  end
-                 local.get $0
-                 local.get $1
-                 call $"~lib/map/Map<~lib/string/String,u8>~visit"
                  return
                 end
                 local.get $0
                 local.get $1
-                call $"~lib/map/Map<~lib/string/String,u16>~visit"
+                call $assembly/cpu/InstructionActions~visit
                 return
                end
+               local.get $0
+               local.get $1
+               call $~lib/typedarray/Uint8Array~visit
                return
               end
               local.get $0
               local.get $1
-              call $assembly/cpu/InstructionActions~visit
+              call $assembly/memory/Rom~visit
               return
              end
              local.get $0
              local.get $1
-             call $~lib/typedarray/Uint8Array~visit
+             call $assembly/memory/Memory~visit
              return
             end
-            local.get $0
-            local.get $1
-            call $assembly/memory/Rom~visit
             return
            end
            local.get $0
            local.get $1
-           call $assembly/memory/Memory~visit
+           call $assembly/memory/Ram~visit
            return
           end
+          local.get $0
+          local.get $1
+          call $assembly/ioManager/IoManager~visit
           return
          end
-         local.get $0
-         local.get $1
-         call $assembly/memory/Ram~visit
          return
         end
         local.get $0
         local.get $1
-        call $assembly/ioManager/IoManager~visit
+        call $~lib/function/Function<%28assembly/cpu/Cpu%29=>~lib/typedarray/Uint8Array>~visit
         return
        end
+       local.get $0
+       local.get $1
+       call $~lib/function/Function<%28assembly/cpu/Cpu%29=>void>~visit
        return
       end
       local.get $0
       local.get $1
-      call $~lib/function/Function<%28assembly/cpu/Cpu%29=>~lib/typedarray/Uint8Array>~visit
+      call $~lib/staticarray/StaticArray<~lib/string/String>~visit
       return
      end
      local.get $0
      local.get $1
-     call $~lib/function/Function<%28assembly/cpu/Cpu%29=>void>~visit
+     call $~lib/function/Function<%28this:assembly/memory/Memory%2Cu16%29=>u8>~visit
      return
     end
     local.get $0
     local.get $1
-    call $~lib/staticarray/StaticArray<~lib/string/String>~visit
+    call $assembly/rom_utils/RomHeader~visit
     return
    end
    local.get $0
    local.get $1
-   call $~lib/function/Function<%28this:assembly/memory/Memory%2Cu16%29=>u8>~visit
+   call $~lib/function/Function<%28~lib/arraybuffer/ArrayBuffer%2Cu32%2Cu32%29=>~lib/arraybuffer/ArrayBuffer>~visit
    return
   end
   unreachable
@@ -4013,8 +4387,8 @@
   global.get $~lib/memory/__data_end
   i32.lt_s
   if
-   i32.const 37872
-   i32.const 37920
+   i32.const 38336
+   i32.const 38384
    i32.const 1
    i32.const 1
    call $~lib/builtins/abort
@@ -8551,13 +8925,15 @@
   local.get $1
   i32.store offset=8
   local.get $1
-  call $assembly/cpu/Cpu#get:instruction
+  call $assembly/cpu/Cpu#get:registers
   local.set $1
   global.get $~lib/memory/__stack_pointer
   local.get $1
   i32.store offset=4
   local.get $1
-  call $assembly/cpu/Instrution#get:bytes
+  call $assembly/cpu/CpuRegisters#get:PC
+  i32.const 1
+  i32.add
   call $assembly/cpu/CpuRegisters#set:PC
   global.get $~lib/memory/__stack_pointer
   i32.const 12
@@ -8580,11 +8956,11 @@
   i32.const 24
   memory.fill
   global.get $~lib/memory/__stack_pointer
-  i32.const 4720
+  i32.const 4896
   local.tee $fetchData
   i32.store
   global.get $~lib/memory/__stack_pointer
-  i32.const 4752
+  i32.const 4928
   local.tee $execute
   i32.store offset=4
   block $break|0
@@ -8613,7 +8989,7 @@
      br $case1|0
     end
     global.get $~lib/memory/__stack_pointer
-    i32.const 4784
+    i32.const 4960
     local.tee $execute
     i32.store offset=4
     br $break|0
@@ -8638,7 +9014,7 @@
    call $assembly/lib/lib_numbers/toHex
    local.tee $4
    i32.store offset=20
-   i32.const 4912
+   i32.const 5088
    local.set $5
    global.get $~lib/memory/__stack_pointer
    local.get $5
@@ -8652,7 +9028,7 @@
    i32.store offset=16
    local.get $5
    call $~lib/staticarray/StaticArray<~lib/string/String>#__uset
-   i32.const 4912
+   i32.const 5088
    local.set $5
    global.get $~lib/memory/__stack_pointer
    local.get $5
@@ -8715,61 +9091,132 @@
   (local $PC i32)
   (local $instructionCode i32)
   (local $3 i32)
+  (local $4 i32)
+  (local $5 i32)
   global.get $~lib/memory/__stack_pointer
-  i32.const 8
+  i32.const 20
   i32.sub
   global.set $~lib/memory/__stack_pointer
   call $~stack_check
   global.get $~lib/memory/__stack_pointer
-  i64.const 0
-  i64.store
+  i32.const 0
+  i32.const 20
+  memory.fill
   local.get $this
-  local.set $3
+  local.set $5
   global.get $~lib/memory/__stack_pointer
-  local.get $3
+  local.get $5
   i32.store offset=4
-  local.get $3
+  local.get $5
   call $assembly/cpu/Cpu#get:registers
-  local.set $3
+  local.set $5
   global.get $~lib/memory/__stack_pointer
-  local.get $3
+  local.get $5
   i32.store
-  local.get $3
+  local.get $5
   call $assembly/cpu/CpuRegisters#get:PC
   local.set $PC
   local.get $this
-  local.set $3
+  local.set $5
   global.get $~lib/memory/__stack_pointer
-  local.get $3
+  local.get $5
   i32.store
-  local.get $3
+  local.get $5
   local.get $PC
   call $assembly/cpu/Cpu#readMemory8
   local.set $instructionCode
-  local.get $this
-  local.set $3
   global.get $~lib/memory/__stack_pointer
+  local.get $this
+  local.set $5
+  global.get $~lib/memory/__stack_pointer
+  local.get $5
+  i32.store offset=8
+  local.get $5
+  call $assembly/cpu/Cpu#get:registers
+  local.set $5
+  global.get $~lib/memory/__stack_pointer
+  local.get $5
+  i32.store offset=4
+  local.get $5
+  call $assembly/cpu/CpuRegisters#get:PC
+  i32.const 65535
+  i32.and
+  i32.const 4
+  call $assembly/lib/lib_numbers/toHex
+  local.tee $3
+  i32.store offset=12
+  global.get $~lib/memory/__stack_pointer
+  local.get $instructionCode
+  i32.const 0
+  call $assembly/lib/lib_numbers/toHex
+  local.tee $4
+  i32.store offset=16
+  i32.const 4848
+  local.set $5
+  global.get $~lib/memory/__stack_pointer
+  local.get $5
+  i32.store offset=4
+  local.get $5
+  i32.const 1
   local.get $3
+  local.set $5
+  global.get $~lib/memory/__stack_pointer
+  local.get $5
+  i32.store offset=8
+  local.get $5
+  call $~lib/staticarray/StaticArray<~lib/string/String>#__uset
+  i32.const 4848
+  local.set $5
+  global.get $~lib/memory/__stack_pointer
+  local.get $5
+  i32.store offset=4
+  local.get $5
+  i32.const 3
+  local.get $4
+  local.set $5
+  global.get $~lib/memory/__stack_pointer
+  local.get $5
+  i32.store offset=8
+  local.get $5
+  call $~lib/staticarray/StaticArray<~lib/string/String>#__uset
+  i32.const 4848
+  local.set $5
+  global.get $~lib/memory/__stack_pointer
+  local.get $5
+  i32.store offset=4
+  local.get $5
+  i32.const 1584
+  call $~lib/staticarray/StaticArray<~lib/string/String>#join
+  local.set $5
+  global.get $~lib/memory/__stack_pointer
+  local.get $5
   i32.store
-  local.get $3
+  local.get $5
+  call $~lib/console/console.log
+  local.get $this
+  local.set $5
+  global.get $~lib/memory/__stack_pointer
+  local.get $5
+  i32.store
+  local.get $5
   i32.const 0
   local.get $instructionCode
   call $assembly/cpu/Instrution#constructor
-  local.set $3
+  local.set $5
   global.get $~lib/memory/__stack_pointer
-  local.get $3
+  local.get $5
   i32.store offset=4
-  local.get $3
+  local.get $5
   call $assembly/cpu/Cpu#set:instruction
   local.get $this
-  local.set $3
+  local.set $5
   global.get $~lib/memory/__stack_pointer
-  local.get $3
+  local.get $5
   i32.store
-  local.get $3
+  local.get $5
   call $assembly/cpu/Cpu#loadInstructionActions
   global.get $~lib/memory/__stack_pointer
-  i32.const 8
+  i32.const 20
   i32.add
   global.set $~lib/memory/__stack_pointer
  )
@@ -8968,7 +9415,1022 @@
     br $for-loop|0
    end
   end
-  i32.const 4944
+  i32.const 5120
+  call $~lib/console/console.log
+  global.get $~lib/memory/__stack_pointer
+  i32.const 16
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+ )
+ (func $~lib/arraybuffer/ArrayBuffer#slice (param $this i32) (param $begin i32) (param $end i32) (result i32)
+  (local $length i32)
+  (local $4 i32)
+  (local $5 i32)
+  (local $6 i32)
+  (local $7 i32)
+  (local $8 i32)
+  (local $9 i32)
+  (local $10 i32)
+  (local $11 i32)
+  (local $12 i32)
+  (local $13 i32)
+  (local $outSize i32)
+  (local $out i32)
+  (local $16 i32)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 8
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  call $~stack_check
+  global.get $~lib/memory/__stack_pointer
+  i64.const 0
+  i64.store
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store
+  local.get $16
+  call $~lib/arraybuffer/ArrayBuffer#get:byteLength
+  local.set $length
+  local.get $begin
+  i32.const 0
+  i32.lt_s
+  if (result i32)
+   local.get $length
+   local.get $begin
+   i32.add
+   local.tee $4
+   i32.const 0
+   local.tee $5
+   local.get $4
+   local.get $5
+   i32.gt_s
+   select
+  else
+   local.get $begin
+   local.tee $6
+   local.get $length
+   local.tee $7
+   local.get $6
+   local.get $7
+   i32.lt_s
+   select
+  end
+  local.set $begin
+  local.get $end
+  i32.const 0
+  i32.lt_s
+  if (result i32)
+   local.get $length
+   local.get $end
+   i32.add
+   local.tee $8
+   i32.const 0
+   local.tee $9
+   local.get $8
+   local.get $9
+   i32.gt_s
+   select
+  else
+   local.get $end
+   local.tee $10
+   local.get $length
+   local.tee $11
+   local.get $10
+   local.get $11
+   i32.lt_s
+   select
+  end
+  local.set $end
+  local.get $end
+  local.get $begin
+  i32.sub
+  local.tee $12
+  i32.const 0
+  local.tee $13
+  local.get $12
+  local.get $13
+  i32.gt_s
+  select
+  local.set $outSize
+  global.get $~lib/memory/__stack_pointer
+  local.get $outSize
+  i32.const 1
+  call $~lib/rt/itcms/__new
+  local.tee $out
+  i32.store offset=4
+  local.get $out
+  local.get $this
+  local.get $begin
+  i32.add
+  local.get $outSize
+  memory.copy
+  local.get $out
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  i32.const 8
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $16
+  return
+ )
+ (func $assembly/rom_utils/getRomHeader~anonymous|0 (param $romFile i32) (param $start i32) (param $end i32) (result i32)
+  (local $3 i32)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  call $~stack_check
+  global.get $~lib/memory/__stack_pointer
+  i32.const 0
+  i32.store
+  local.get $romFile
+  local.set $3
+  global.get $~lib/memory/__stack_pointer
+  local.get $3
+  i32.store
+  local.get $3
+  local.get $start
+  local.get $end
+  i32.const 1
+  i32.add
+  call $~lib/arraybuffer/ArrayBuffer#slice
+  local.set $3
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $3
+ )
+ (func $assembly/rom_utils/RomHeader#constructor (param $this i32) (param $entrypoint i32) (param $nintendoLogo i32) (param $romTitle i32) (param $manufacturerCode i32) (param $cgbFlag i32) (param $newLicenseeCode i32) (param $sgbFlag i32) (param $cartridgeType i32) (param $romSize i32) (param $ramSize i32) (param $destinationCode i32) (param $oldLicenseeCode i32) (param $maskRomVersionNumber i32) (param $headerChecksum i32) (param $globalChecksum i32) (result i32)
+  (local $16 i32)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 12
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  call $~stack_check
+  global.get $~lib/memory/__stack_pointer
+  i64.const 0
+  i64.store
+  global.get $~lib/memory/__stack_pointer
+  i32.const 0
+  i32.store offset=8
+  local.get $this
+  i32.eqz
+  if
+   global.get $~lib/memory/__stack_pointer
+   i32.const 60
+   i32.const 24
+   call $~lib/rt/itcms/__new
+   local.tee $this
+   i32.store
+  end
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:entrypoint
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:nintendoLogo
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:romTitle
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:manufacturerCode
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:cgbFlag
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:newLicenseeCode
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:sgbFlag
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:cartridgeType
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:romSize
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:ramSize
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:destinationCode
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:oldLicenseeCode
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:maskRomVersionNumber
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:headerChecksum
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  i32.const 0
+  i32.const 0
+  call $~lib/arraybuffer/ArrayBuffer#constructor
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:globalChecksum
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $entrypoint
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:entrypoint
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $nintendoLogo
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:nintendoLogo
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $romTitle
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:romTitle
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $manufacturerCode
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:manufacturerCode
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $cgbFlag
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:cgbFlag
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $newLicenseeCode
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:newLicenseeCode
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $sgbFlag
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:sgbFlag
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $cartridgeType
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:cartridgeType
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $romSize
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:romSize
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $ramSize
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:ramSize
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $destinationCode
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:destinationCode
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $oldLicenseeCode
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:oldLicenseeCode
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $maskRomVersionNumber
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:maskRomVersionNumber
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $headerChecksum
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:headerChecksum
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=4
+  local.get $16
+  local.get $globalChecksum
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  local.get $16
+  i32.store offset=8
+  local.get $16
+  call $assembly/rom_utils/RomHeader#set:globalChecksum
+  local.get $this
+  local.set $16
+  global.get $~lib/memory/__stack_pointer
+  i32.const 12
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $16
+ )
+ (func $assembly/rom_utils/getRomHeader (param $romFile i32) (result i32)
+  (local $entrypoint i32)
+  (local $nintendoLogo i32)
+  (local $romTitle i32)
+  (local $manufacturerCode i32)
+  (local $cgbFlag i32)
+  (local $newLicenseeCode i32)
+  (local $sgbFlag i32)
+  (local $cartridgeType i32)
+  (local $romSize i32)
+  (local $ramSize i32)
+  (local $destinationCode i32)
+  (local $oldLicenseeCode i32)
+  (local $maskRomVersionNumber i32)
+  (local $headerChecksum i32)
+  (local $globalChecksum i32)
+  (local $romHeader i32)
+  (local $17 i32)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 124
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  call $~stack_check
+  global.get $~lib/memory/__stack_pointer
+  i32.const 0
+  i32.const 124
+  memory.fill
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 256
+  i32.const 259
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $entrypoint
+  i32.store offset=4
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 260
+  i32.const 307
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $nintendoLogo
+  i32.store offset=8
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 308
+  i32.const 323
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $romTitle
+  i32.store offset=12
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 319
+  i32.const 322
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $manufacturerCode
+  i32.store offset=16
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 323
+  i32.const 323
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $cgbFlag
+  i32.store offset=20
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 324
+  i32.const 325
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $newLicenseeCode
+  i32.store offset=24
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 326
+  i32.const 326
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $sgbFlag
+  i32.store offset=28
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 327
+  i32.const 327
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $cartridgeType
+  i32.store offset=32
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 328
+  i32.const 328
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $romSize
+  i32.store offset=36
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 329
+  i32.const 329
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $ramSize
+  i32.store offset=40
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 330
+  i32.const 330
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $destinationCode
+  i32.store offset=44
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 331
+  i32.const 331
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $oldLicenseeCode
+  i32.store offset=48
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 332
+  i32.const 332
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $maskRomVersionNumber
+  i32.store offset=52
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 333
+  i32.const 333
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $headerChecksum
+  i32.store offset=56
+  global.get $~lib/memory/__stack_pointer
+  local.get $romFile
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  i32.const 334
+  i32.const 335
+  i32.const 3
+  global.set $~argumentsLength
+  i32.const 5168
+  i32.load
+  call_indirect (type $4)
+  local.tee $globalChecksum
+  i32.store offset=60
+  global.get $~lib/memory/__stack_pointer
+  i32.const 0
+  local.get $entrypoint
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store
+  local.get $17
+  local.get $nintendoLogo
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=64
+  local.get $17
+  local.get $romTitle
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=68
+  local.get $17
+  local.get $manufacturerCode
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=72
+  local.get $17
+  local.get $cgbFlag
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=76
+  local.get $17
+  local.get $newLicenseeCode
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=80
+  local.get $17
+  local.get $sgbFlag
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=84
+  local.get $17
+  local.get $cartridgeType
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=88
+  local.get $17
+  local.get $romSize
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=92
+  local.get $17
+  local.get $ramSize
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=96
+  local.get $17
+  local.get $destinationCode
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=100
+  local.get $17
+  local.get $oldLicenseeCode
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=104
+  local.get $17
+  local.get $maskRomVersionNumber
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=108
+  local.get $17
+  local.get $headerChecksum
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=112
+  local.get $17
+  local.get $globalChecksum
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  local.get $17
+  i32.store offset=116
+  local.get $17
+  call $assembly/rom_utils/RomHeader#constructor
+  local.tee $romHeader
+  i32.store offset=120
+  local.get $romHeader
+  local.set $17
+  global.get $~lib/memory/__stack_pointer
+  i32.const 124
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+  local.get $17
+  return
+ )
+ (func $assembly/index/injectRom (param $data i32)
+  (local $romHeader i32)
+  (local $2 i32)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 16
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  call $~stack_check
+  global.get $~lib/memory/__stack_pointer
+  i64.const 0
+  i64.store
+  global.get $~lib/memory/__stack_pointer
+  i64.const 0
+  i64.store offset=8
+  global.get $~lib/memory/__stack_pointer
+  local.get $data
+  local.set $2
+  global.get $~lib/memory/__stack_pointer
+  local.get $2
+  i32.store
+  local.get $2
+  call $assembly/rom_utils/getRomHeader
+  local.tee $romHeader
+  i32.store offset=4
+  local.get $romHeader
+  drop
+  i32.const 5200
+  call $~lib/console/console.log
+  local.get $romHeader
+  local.set $2
+  global.get $~lib/memory/__stack_pointer
+  local.get $2
+  i32.store offset=12
+  local.get $2
+  call $assembly/rom_utils/RomHeader#get:romTitle
+  local.set $2
+  global.get $~lib/memory/__stack_pointer
+  local.get $2
+  i32.store offset=8
+  local.get $2
+  call $~lib/arraybuffer/ArrayBuffer#toString
+  local.set $2
+  global.get $~lib/memory/__stack_pointer
+  local.get $2
+  i32.store
+  local.get $2
   call $~lib/console/console.log
   global.get $~lib/memory/__stack_pointer
   i32.const 16
@@ -9307,6 +10769,30 @@
   i32.add
   global.set $~lib/memory/__stack_pointer
  )
+ (func $~lib/function/Function<%28~lib/arraybuffer/ArrayBuffer%2Cu32%2Cu32%29=>~lib/arraybuffer/ArrayBuffer>#__visit (param $this i32) (param $cookie i32)
+  (local $2 i32)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  call $~stack_check
+  global.get $~lib/memory/__stack_pointer
+  i32.const 0
+  i32.store
+  local.get $this
+  local.set $2
+  global.get $~lib/memory/__stack_pointer
+  local.get $2
+  i32.store
+  local.get $2
+  call $~lib/function/Function<%28~lib/arraybuffer/ArrayBuffer%2Cu32%2Cu32%29=>~lib/arraybuffer/ArrayBuffer>#get:_env
+  local.get $cookie
+  call $~lib/rt/itcms/__visit
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
+ )
  (func $~lib/object/Object#constructor (param $this i32) (result i32)
   (local $1 i32)
   global.get $~lib/memory/__stack_pointer
@@ -9570,5 +11056,21 @@
   global.set $~lib/memory/__stack_pointer
   local.get $12
   return
+ )
+ (func $export:assembly/index/injectRom (param $0 i32)
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.sub
+  global.set $~lib/memory/__stack_pointer
+  call $~stack_check
+  global.get $~lib/memory/__stack_pointer
+  local.get $0
+  i32.store
+  local.get $0
+  call $assembly/index/injectRom
+  global.get $~lib/memory/__stack_pointer
+  i32.const 4
+  i32.add
+  global.set $~lib/memory/__stack_pointer
  )
 )

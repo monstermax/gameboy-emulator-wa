@@ -1,5 +1,6 @@
 
 import { Computer } from "./Computer";
+import { getRomHeader } from "./rom_utils";
 
 
 export function runEmulator(): void {
@@ -15,3 +16,16 @@ export function runEmulator(): void {
     console.log('WASM Completed')
 }
 
+
+
+export function injectInstructionsSet(): void {
+
+}
+
+
+export function injectRom(data: ArrayBuffer): void {
+    const romHeader = getRomHeader(data);romHeader
+    //console.log('romHeader', romHeader);
+    console.log('[INDEX] romTitle:');
+    console.log(romHeader.romTitle.toString());
+}

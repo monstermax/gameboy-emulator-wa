@@ -1,4 +1,44 @@
-{
+
+
+
+export type Hex = `0x${string}`;
+
+
+export type Instructions = {
+    unprefixed: Record<Hex, Instruction>;
+    cbprefixed: Record<Hex, Instruction>;
+}
+
+
+export type Instruction = {
+      mnemonic: string,
+      bytes: number,
+      cycles: number[],
+      operands: Operand[],
+      immediate: boolean,
+      flags: {
+        "Z": "Z" | "0" | "1" | "-",
+        "N": "N" | "0" | "1" | "-",
+        "H": "H" | "0" | "1" | "-",
+        "C": "C" | "0" | "1" | "-",
+      }
+}
+
+
+export type Operand = {
+    name: string,
+    immediate: boolean,
+    increment?: boolean,
+    decrement?: boolean,
+    bytes?: number,
+}
+
+
+
+// Source: https://gbdev.io/gb-opcodes/Opcodes.json
+
+
+export const instructionsSet = {
   "unprefixed": {
     "0x00": {
       "mnemonic": "NOP",
@@ -10633,4 +10673,4 @@
       }
     }
   }
-}
+} satisfies Instructions;

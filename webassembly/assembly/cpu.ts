@@ -64,6 +64,8 @@ export class Cpu {
         const PC = this.registers.PC;
         const instructionCode = this.readMemory8(PC);
 
+        console.log(`[CPU] Current address : ${toHex(this.registers.PC, 4)} => opcode = ${toHex(instructionCode)}`)
+
         this.instruction = new Instrution(instructionCode)
 
         this.loadInstructionActions()
@@ -78,7 +80,7 @@ export class Cpu {
         switch (this.instruction.opcode) {
             case 0x00: // NOP
                 execute = function (cpu: Cpu) {
-                    cpu.registers.PC = cpu.instruction.bytes;
+                    cpu.registers.PC += 1 //cpu.instruction.bytes;
                 }
                 break;
 
