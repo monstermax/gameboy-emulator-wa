@@ -17,9 +17,20 @@ async function main() {
 
     //emulator.runEmulatorCycles() // OLD
 
-     // TODO
+    // TODO
     //let canvasRef: HTMLCanvasElement | null = null;
-    //emulator.attachCanvas(canvasRef)
+    //emulator.attachCanvas(canvasRef); // Possibilité d'afficher un canvas en console ?
+
+    // OR
+    //emulator.attachStream(); // diffuse l'image via un flux mp4 (RTSP ?)
+
+    // OR
+    //emulator.attachWindow(); // Spawn a GUI Window (Electron ? SDL ?)
+
+
+    //emulator.attachKeyboard();
+    // AND/OR
+    //emulator.attachGamepad();
 
     emulator.start()
 }
