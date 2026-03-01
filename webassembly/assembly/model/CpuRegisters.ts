@@ -1,21 +1,19 @@
 // Gameboy Emulator - CPU Registers
 
-import { high16, low16 } from "../lib/lib_numbers";
+// Storage: StaticArray indexed by numeric constants (no Map, no string lookups)
+// Public API unchanged: A, B, C, D, E, H, L, F, AF, BC, DE, HL, SP, PC, flags
 
-import { asserts } from "../utils";
 
-
-const registers8 = [
-    'A', 'B', 'C', 'D', 'E', // Data 8-bit Registers
-    'H', 'L',                 // Data 8-bit Registers
-    'F',                      // Flags 8-bit Register ( bit7 = z = Zero flag | bit6 = n = Subtraction flag | bit5 = h = Half Carry flag | bit4 = c = Carry flag)
-];
-
-const registers16 = [
-    'SP', 'PC', // Control 16-bit Registers
-    'AF', 'BC', 'DE', 'HL', // 16-bit combined registers (each one is 2x 8-bit registers)
-];
-
+// === 8-bit register indices ===
+const REG_A: i32 = 0;
+const REG_B: i32 = 1;
+const REG_C: i32 = 2;
+const REG_D: i32 = 3;
+const REG_E: i32 = 4;
+const REG_H: i32 = 5;
+const REG_L: i32 = 6;
+const REG_F: i32 = 7;
+const REG8_COUNT: i32 = 8;
 
 // Flag bit masks
 const FLAG_Z: u8 = 0x80; // bit 7 - Zero
@@ -25,97 +23,76 @@ const FLAG_C: u8 = 0x10; // bit 4 - Carry
 
 
 export class CpuRegisters {
-    private registers8: Map<string, u8> = new Map
-    private registers16: Map<string, u16> = new Map
+    private r: StaticArray<u8> = new StaticArray<u8>(REG8_COUNT);
+
+    // 16-bit registers stored directly (not in the array)
+    private _sp: u16 = 0;
+    private _pc: u16 = 0;
 
 
     constructor() {
-        this.initRegisters()
+        this.initRegisters();
     }
-
 
     initRegisters(): void {
-        // Init 8-bit registers
-        this.registers8.clear();
-
-        for (let i=0; i<registers8.length; i++) {
-            const registerName = registers8[i];
-            this.registers8.set(registerName, 0);
+        for (let i: i32 = 0; i < REG8_COUNT; i++) {
+            unchecked(this.r[i] = 0);
         }
-
-        // Init 16-bit registers
-        this.registers16.clear();
-
-        for (let i=0; i<registers16.length; i++) {
-            const registerName = registers16[i];
-            this.registers16.set(registerName, 0);
-        }
+        this._sp = 0;
+        this._pc = 0;
     }
 
 
-    private readRegister8(name: string): u8 {
-        asserts(this.registers8.has(name), `Register ${name} is not found`)
-        return this.registers8.get(name);
-    }
+    // === 8-bit registers ===
 
-    private readRegister16(name: string): u16 {
-        asserts(this.registers16.has(name), `Register ${name} is not found`)
-        return this.registers16.get(name);
-    }
+    get A(): u8 { return unchecked(this.r[REG_A]); }
+    set A(v: u8) { unchecked(this.r[REG_A] = v); }
 
+    get B(): u8 { return unchecked(this.r[REG_B]); }
+    set B(v: u8) { unchecked(this.r[REG_B] = v); }
 
-    private writeRegister8(name: string, value: u8): void {
-        asserts(this.registers8.has(name), `Register ${name} is not found`)
-        this.registers8.set(name, value);
-    }
+    get C(): u8 { return unchecked(this.r[REG_C]); }
+    set C(v: u8) { unchecked(this.r[REG_C] = v); }
 
-    private writeRegister16(name: string, value: u16): void {
-        asserts(this.registers16.has(name), `Register ${name} is not found`)
-        this.registers16.set(name, value);
-    }
+    get D(): u8 { return unchecked(this.r[REG_D]); }
+    set D(v: u8) { unchecked(this.r[REG_D] = v); }
 
+    get E(): u8 { return unchecked(this.r[REG_E]); }
+    set E(v: u8) { unchecked(this.r[REG_E] = v); }
 
-    // Data 8-bit Registers
+    get H(): u8 { return unchecked(this.r[REG_H]); }
+    set H(v: u8) { unchecked(this.r[REG_H] = v); }
 
-    get A(): u8 { return this.readRegister8('A'); }
-    set A(value: u8) { this.writeRegister8('A', value); }
+    get L(): u8 { return unchecked(this.r[REG_L]); }
+    set L(v: u8) { unchecked(this.r[REG_L] = v); }
 
-    get B(): u8 { return this.readRegister8('B'); }
-    set B(value: u8) { this.writeRegister8('B', value); }
-
-    get C(): u8 { return this.readRegister8('C'); }
-    set C(value: u8) { this.writeRegister8('C', value); }
-
-    get D(): u8 { return this.readRegister8('D'); }
-    set D(value: u8) { this.writeRegister8('D', value); }
-
-    get E(): u8 { return this.readRegister8('E'); }
-    set E(value: u8) { this.writeRegister8('E', value); }
-
-    get H(): u8 { return this.readRegister8('H'); }
-    set H(value: u8) { this.writeRegister8('H', value); }
-
-    get L(): u8 { return this.readRegister8('L'); }
-    set L(value: u8) { this.writeRegister8('L', value); }
-
-
-    // Flag 8-bit Register
-
-    get F(): u8 { return this.readRegister8('F'); }
-    set F(value: u8) { this.writeRegister8('F', value & 0xF0); } // Lower 4 bits always 0
+    get F(): u8 { return unchecked(this.r[REG_F]); }
+    set F(v: u8) { unchecked(this.r[REG_F] = v & 0xF0); } // Lower 4 bits always 0
 
 
     // === Flag helpers ===
 
-    get flagZ(): bool { return (this.F & FLAG_Z) != 0; }
-    get flagN(): bool { return (this.F & FLAG_N) != 0; }
-    get flagH(): bool { return (this.F & FLAG_H) != 0; }
-    get flagC(): bool { return (this.F & FLAG_C) != 0; }
+    get flagZ(): bool { return (unchecked(this.r[REG_F]) & FLAG_Z) != 0; }
+    get flagN(): bool { return (unchecked(this.r[REG_F]) & FLAG_N) != 0; }
+    get flagH(): bool { return (unchecked(this.r[REG_F]) & FLAG_H) != 0; }
+    get flagC(): bool { return (unchecked(this.r[REG_F]) & FLAG_C) != 0; }
 
-    set flagZ(on: bool) { if (on) { this.F = this.F | FLAG_Z; } else { this.F = this.F & ~FLAG_Z; } }
-    set flagN(on: bool) { if (on) { this.F = this.F | FLAG_N; } else { this.F = this.F & ~FLAG_N; } }
-    set flagH(on: bool) { if (on) { this.F = this.F | FLAG_H; } else { this.F = this.F & ~FLAG_H; } }
-    set flagC(on: bool) { if (on) { this.F = this.F | FLAG_C; } else { this.F = this.F & ~FLAG_C; } }
+    set flagZ(on: bool) {
+        const f = unchecked(this.r[REG_F]);
+        unchecked(this.r[REG_F] = on ? (f | FLAG_Z) : (f & ~FLAG_Z));
+    }
+    set flagN(on: bool) {
+        const f = unchecked(this.r[REG_F]);
+        unchecked(this.r[REG_F] = on ? (f | FLAG_N) : (f & ~FLAG_N));
+    }
+    set flagH(on: bool) {
+        const f = unchecked(this.r[REG_F]);
+        unchecked(this.r[REG_F] = on ? (f | FLAG_H) : (f & ~FLAG_H));
+    }
+    set flagC(on: bool) {
+        const f = unchecked(this.r[REG_F]);
+        unchecked(this.r[REG_F] = on ? (f | FLAG_C) : (f & ~FLAG_C));
+    }
 
     /** Set all 4 flags at once */
     setFlags(z: bool, n: bool, h: bool, c: bool): void {
@@ -124,71 +101,50 @@ export class CpuRegisters {
         if (n) f |= FLAG_N;
         if (h) f |= FLAG_H;
         if (c) f |= FLAG_C;
-        this.F = f;
+        unchecked(this.r[REG_F] = f);
     }
 
 
-    // Control 16-bit Registers
+    // === 16-bit control registers ===
 
-    get PC(): u16 { return this.readRegister16('PC'); }
-    set PC(value: u16) { this.writeRegister16('PC', value); }
+    get PC(): u16 { return this._pc; }
+    set PC(v: u16) { this._pc = v; }
 
-    get SP(): u16 { return this.readRegister16('SP'); }
-    set SP(value: u16) { this.writeRegister16('SP', value); }
+    get SP(): u16 { return this._sp; }
+    set SP(v: u16) { this._sp = v; }
 
 
-    // Combined 8-bit Registers
+    // === 16-bit combined registers ===
 
-    // AF (Accumulator & Flags)
     get AF(): u16 {
-        const high = this.readRegister8('A');
-        const low = this.readRegister8('F');
-        return (low + high * 256) as u16;
+        return (<u16>unchecked(this.r[REG_A]) << 8) | <u16>unchecked(this.r[REG_F]);
     }
-    set AF(value: u16) {
-        const low = low16(value) & 0xF0; // Lower 4 bits of F always 0
-        const high = high16(value);
-        this.writeRegister8('A', high);
-        this.writeRegister8('F', low);
+    set AF(v: u16) {
+        unchecked(this.r[REG_A] = <u8>(v >> 8));
+        unchecked(this.r[REG_F] = <u8>(v & 0xF0)); // Lower 4 bits of F always 0
     }
 
-    // BC
     get BC(): u16 {
-        const high = this.readRegister8('B');
-        const low = this.readRegister8('C');
-        return (low + high * 256) as u16;
+        return (<u16>unchecked(this.r[REG_B]) << 8) | <u16>unchecked(this.r[REG_C]);
     }
-    set BC(value: u16) {
-        const low = low16(value);
-        const high = high16(value);
-        this.writeRegister8('B', high);
-        this.writeRegister8('C', low);
+    set BC(v: u16) {
+        unchecked(this.r[REG_B] = <u8>(v >> 8));
+        unchecked(this.r[REG_C] = <u8>(v & 0xFF));
     }
 
-    // DE
     get DE(): u16 {
-        const high = this.readRegister8('D');
-        const low = this.readRegister8('E');
-        return (low + high * 256) as u16;
+        return (<u16>unchecked(this.r[REG_D]) << 8) | <u16>unchecked(this.r[REG_E]);
     }
-    set DE(value: u16) {
-        const low = low16(value);
-        const high = high16(value);
-        this.writeRegister8('D', high);
-        this.writeRegister8('E', low);
+    set DE(v: u16) {
+        unchecked(this.r[REG_D] = <u8>(v >> 8));
+        unchecked(this.r[REG_E] = <u8>(v & 0xFF));
     }
 
-    // HL
     get HL(): u16 {
-        const high = this.readRegister8('H');
-        const low = this.readRegister8('L');
-        return (low + high * 256) as u16;
+        return (<u16>unchecked(this.r[REG_H]) << 8) | <u16>unchecked(this.r[REG_L]);
     }
-    set HL(value: u16) {
-        const low = low16(value);
-        const high = high16(value);
-        this.writeRegister8('H', high);
-        this.writeRegister8('L', low);
+    set HL(v: u16) {
+        unchecked(this.r[REG_H] = <u8>(v >> 8));
+        unchecked(this.r[REG_L] = <u8>(v & 0xFF));
     }
-
 }
