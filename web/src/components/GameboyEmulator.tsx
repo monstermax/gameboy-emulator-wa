@@ -17,6 +17,8 @@ export const GameboyEmulator: React.FC = () => {
     const [cyclesSpeed, setCyclesSpeed] = useState(0);
     const [framesSpeed, setFramesSpeed] = useState(0);
 
+    const [selectedGame, setSelectedGame] = useState(romFilename);
+
 
     useEffect(() => {
         if (!ready) return;
@@ -55,6 +57,7 @@ export const GameboyEmulator: React.FC = () => {
 
     const handleLoadGame = (filepath: string) => {
         console.log(`Loading game ${filepath}`)
+        setSelectedGame(filepath);
         emulatorStop()
         emulator.loadRom(filepath)
         emulatorStart()
@@ -97,7 +100,7 @@ export const GameboyEmulator: React.FC = () => {
                     <div className="flex justify-center gap-2">
                         <GameSelector
                             handleLoadGame={handleLoadGame}
-                            selectedGame={romFilename}
+                            selectedGame={selectedGame}
                             disabled={!ready}
                         />
 
@@ -115,7 +118,7 @@ export const GameboyEmulator: React.FC = () => {
                         </button>
 
                         <button
-                            onClick={() => handleLoadGame(romFilename)}
+                            onClick={() => handleLoadGame(selectedGame)}
                             disabled={!ready}
                             className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/80 disabled:opacity-50 text-sm cursor-pointer"
                         >
@@ -144,8 +147,10 @@ const GameSelector: React.FC<GameSelectorProps> = (props) => {
     const { handleLoadGame, selectedGame, disabled } = props;
     const [gamesList, setGamesList] = useState<string[]>([]);
 
+    const gamesListUrl = "/roms_list.json";
+
     useEffect(() => {
-        fetch("/roms_list.json")
+        fetch(gamesListUrl)
             .then(res => res.json())
             .then(setGamesList)
             .catch(console.error);
