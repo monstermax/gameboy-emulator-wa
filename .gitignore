@@ -4,4 +4,7 @@ node_modules/
 .envrc*
 
 /roms/
+/webassembly/build/
+/web/public/webassembly/
+/web/public/roms/
 
