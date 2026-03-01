@@ -1,216 +1,175 @@
-// Gameboy Emulator - CPU Instructions - CB Prefixed 0x80-0xFF
+// Gameboy Emulator - CB Prefixed 0x80-0xFF
 
 // RES b, r8 (0x80-0xBF) and SET b, r8 (0xC0-0xFF)
-//
-// Register order per group of 8: B, C, D, E, H, L, [HL], A
 
-import { CpuInstrution, InstructionActions } from "./CpuInstrution";
 import { Cpu } from "./Cpu";
-import { toHex } from "../lib/lib_numbers";
 
 
-export function loadPrefixedInstructionActions_0x80_0xFF(instruction: CpuInstrution): InstructionActions {
-    let execute: (cpu: Cpu) => void;
+export function executeCbPrefixed_0x80_0xFF(cpu: Cpu, opcode: u8): void {
+    const r = cpu.registers;
 
-    switch (instruction.opcode) {
+    switch (opcode) {
 
-        // =====================================================================
-        //  RES 0, r8 (0x80-0x87)
-        // =====================================================================
-        case 0x80: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B & ~(1 << 0); cpu.registers.PC += 1; }; break;
-        case 0x81: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C & ~(1 << 0); cpu.registers.PC += 1; }; break;
-        case 0x82: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D & ~(1 << 0); cpu.registers.PC += 1; }; break;
-        case 0x83: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E & ~(1 << 0); cpu.registers.PC += 1; }; break;
-        case 0x84: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H & ~(1 << 0); cpu.registers.PC += 1; }; break;
-        case 0x85: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L & ~(1 << 0); cpu.registers.PC += 1; }; break;
-        case 0x86: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) & ~(1 << 0)); cpu.registers.PC += 1; }; break;
-        case 0x87: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A & ~(1 << 0); cpu.registers.PC += 1; }; break;
+        // RES 0 (0x80-0x87)
+        case 0x80: r.B &= ~0x01; r.PC += 1; break;
+        case 0x81: r.C &= ~0x01; r.PC += 1; break;
+        case 0x82: r.D &= ~0x01; r.PC += 1; break;
+        case 0x83: r.E &= ~0x01; r.PC += 1; break;
+        case 0x84: r.H &= ~0x01; r.PC += 1; break;
+        case 0x85: r.L &= ~0x01; r.PC += 1; break;
+        case 0x86: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) & ~0x01); r.PC += 1; break;
+        case 0x87: r.A &= ~0x01; r.PC += 1; break;
 
-        // =====================================================================
-        //  RES 1, r8 (0x88-0x8F)
-        // =====================================================================
-        case 0x88: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B & ~(1 << 1); cpu.registers.PC += 1; }; break;
-        case 0x89: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C & ~(1 << 1); cpu.registers.PC += 1; }; break;
-        case 0x8A: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D & ~(1 << 1); cpu.registers.PC += 1; }; break;
-        case 0x8B: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E & ~(1 << 1); cpu.registers.PC += 1; }; break;
-        case 0x8C: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H & ~(1 << 1); cpu.registers.PC += 1; }; break;
-        case 0x8D: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L & ~(1 << 1); cpu.registers.PC += 1; }; break;
-        case 0x8E: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) & ~(1 << 1)); cpu.registers.PC += 1; }; break;
-        case 0x8F: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A & ~(1 << 1); cpu.registers.PC += 1; }; break;
+        // RES 1 (0x88-0x8F)
+        case 0x88: r.B &= ~0x02; r.PC += 1; break;
+        case 0x89: r.C &= ~0x02; r.PC += 1; break;
+        case 0x8A: r.D &= ~0x02; r.PC += 1; break;
+        case 0x8B: r.E &= ~0x02; r.PC += 1; break;
+        case 0x8C: r.H &= ~0x02; r.PC += 1; break;
+        case 0x8D: r.L &= ~0x02; r.PC += 1; break;
+        case 0x8E: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) & ~0x02); r.PC += 1; break;
+        case 0x8F: r.A &= ~0x02; r.PC += 1; break;
 
-        // =====================================================================
-        //  RES 2, r8 (0x90-0x97)
-        // =====================================================================
-        case 0x90: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B & ~(1 << 2); cpu.registers.PC += 1; }; break;
-        case 0x91: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C & ~(1 << 2); cpu.registers.PC += 1; }; break;
-        case 0x92: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D & ~(1 << 2); cpu.registers.PC += 1; }; break;
-        case 0x93: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E & ~(1 << 2); cpu.registers.PC += 1; }; break;
-        case 0x94: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H & ~(1 << 2); cpu.registers.PC += 1; }; break;
-        case 0x95: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L & ~(1 << 2); cpu.registers.PC += 1; }; break;
-        case 0x96: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) & ~(1 << 2)); cpu.registers.PC += 1; }; break;
-        case 0x97: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A & ~(1 << 2); cpu.registers.PC += 1; }; break;
+        // RES 2 (0x90-0x97)
+        case 0x90: r.B &= ~0x04; r.PC += 1; break;
+        case 0x91: r.C &= ~0x04; r.PC += 1; break;
+        case 0x92: r.D &= ~0x04; r.PC += 1; break;
+        case 0x93: r.E &= ~0x04; r.PC += 1; break;
+        case 0x94: r.H &= ~0x04; r.PC += 1; break;
+        case 0x95: r.L &= ~0x04; r.PC += 1; break;
+        case 0x96: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) & ~0x04); r.PC += 1; break;
+        case 0x97: r.A &= ~0x04; r.PC += 1; break;
 
-        // =====================================================================
-        //  RES 3, r8 (0x98-0x9F)
-        // =====================================================================
-        case 0x98: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B & ~(1 << 3); cpu.registers.PC += 1; }; break;
-        case 0x99: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C & ~(1 << 3); cpu.registers.PC += 1; }; break;
-        case 0x9A: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D & ~(1 << 3); cpu.registers.PC += 1; }; break;
-        case 0x9B: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E & ~(1 << 3); cpu.registers.PC += 1; }; break;
-        case 0x9C: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H & ~(1 << 3); cpu.registers.PC += 1; }; break;
-        case 0x9D: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L & ~(1 << 3); cpu.registers.PC += 1; }; break;
-        case 0x9E: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) & ~(1 << 3)); cpu.registers.PC += 1; }; break;
-        case 0x9F: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A & ~(1 << 3); cpu.registers.PC += 1; }; break;
+        // RES 3 (0x98-0x9F)
+        case 0x98: r.B &= ~0x08; r.PC += 1; break;
+        case 0x99: r.C &= ~0x08; r.PC += 1; break;
+        case 0x9A: r.D &= ~0x08; r.PC += 1; break;
+        case 0x9B: r.E &= ~0x08; r.PC += 1; break;
+        case 0x9C: r.H &= ~0x08; r.PC += 1; break;
+        case 0x9D: r.L &= ~0x08; r.PC += 1; break;
+        case 0x9E: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) & ~0x08); r.PC += 1; break;
+        case 0x9F: r.A &= ~0x08; r.PC += 1; break;
 
-        // =====================================================================
-        //  RES 4, r8 (0xA0-0xA7)
-        // =====================================================================
-        case 0xA0: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B & ~(1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xA1: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C & ~(1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xA2: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D & ~(1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xA3: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E & ~(1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xA4: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H & ~(1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xA5: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L & ~(1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xA6: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) & ~(1 << 4)); cpu.registers.PC += 1; }; break;
-        case 0xA7: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A & ~(1 << 4); cpu.registers.PC += 1; }; break;
+        // RES 4 (0xA0-0xA7)
+        case 0xA0: r.B &= ~0x10; r.PC += 1; break;
+        case 0xA1: r.C &= ~0x10; r.PC += 1; break;
+        case 0xA2: r.D &= ~0x10; r.PC += 1; break;
+        case 0xA3: r.E &= ~0x10; r.PC += 1; break;
+        case 0xA4: r.H &= ~0x10; r.PC += 1; break;
+        case 0xA5: r.L &= ~0x10; r.PC += 1; break;
+        case 0xA6: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) & ~0x10); r.PC += 1; break;
+        case 0xA7: r.A &= ~0x10; r.PC += 1; break;
 
-        // =====================================================================
-        //  RES 5, r8 (0xA8-0xAF)
-        // =====================================================================
-        case 0xA8: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B & ~(1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xA9: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C & ~(1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xAA: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D & ~(1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xAB: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E & ~(1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xAC: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H & ~(1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xAD: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L & ~(1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xAE: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) & ~(1 << 5)); cpu.registers.PC += 1; }; break;
-        case 0xAF: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A & ~(1 << 5); cpu.registers.PC += 1; }; break;
+        // RES 5 (0xA8-0xAF)
+        case 0xA8: r.B &= ~0x20; r.PC += 1; break;
+        case 0xA9: r.C &= ~0x20; r.PC += 1; break;
+        case 0xAA: r.D &= ~0x20; r.PC += 1; break;
+        case 0xAB: r.E &= ~0x20; r.PC += 1; break;
+        case 0xAC: r.H &= ~0x20; r.PC += 1; break;
+        case 0xAD: r.L &= ~0x20; r.PC += 1; break;
+        case 0xAE: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) & ~0x20); r.PC += 1; break;
+        case 0xAF: r.A &= ~0x20; r.PC += 1; break;
 
-        // =====================================================================
-        //  RES 6, r8 (0xB0-0xB7)
-        // =====================================================================
-        case 0xB0: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B & ~(1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xB1: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C & ~(1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xB2: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D & ~(1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xB3: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E & ~(1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xB4: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H & ~(1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xB5: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L & ~(1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xB6: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) & ~(1 << 6)); cpu.registers.PC += 1; }; break;
-        case 0xB7: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A & ~(1 << 6); cpu.registers.PC += 1; }; break;
+        // RES 6 (0xB0-0xB7)
+        case 0xB0: r.B &= ~0x40; r.PC += 1; break;
+        case 0xB1: r.C &= ~0x40; r.PC += 1; break;
+        case 0xB2: r.D &= ~0x40; r.PC += 1; break;
+        case 0xB3: r.E &= ~0x40; r.PC += 1; break;
+        case 0xB4: r.H &= ~0x40; r.PC += 1; break;
+        case 0xB5: r.L &= ~0x40; r.PC += 1; break;
+        case 0xB6: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) & ~0x40); r.PC += 1; break;
+        case 0xB7: r.A &= ~0x40; r.PC += 1; break;
 
-        // =====================================================================
-        //  RES 7, r8 (0xB8-0xBF)
-        // =====================================================================
-        case 0xB8: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B & ~(1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xB9: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C & ~(1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xBA: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D & ~(1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xBB: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E & ~(1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xBC: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H & ~(1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xBD: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L & ~(1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xBE: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) & ~(1 << 7)); cpu.registers.PC += 1; }; break;
-        case 0xBF: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A & ~(1 << 7); cpu.registers.PC += 1; }; break;
+        // RES 7 (0xB8-0xBF)
+        case 0xB8: r.B &= ~0x80; r.PC += 1; break;
+        case 0xB9: r.C &= ~0x80; r.PC += 1; break;
+        case 0xBA: r.D &= ~0x80; r.PC += 1; break;
+        case 0xBB: r.E &= ~0x80; r.PC += 1; break;
+        case 0xBC: r.H &= ~0x80; r.PC += 1; break;
+        case 0xBD: r.L &= ~0x80; r.PC += 1; break;
+        case 0xBE: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) & ~0x80); r.PC += 1; break;
+        case 0xBF: r.A &= ~0x80; r.PC += 1; break;
 
+        // SET 0 (0xC0-0xC7)
+        case 0xC0: r.B |= 0x01; r.PC += 1; break;
+        case 0xC1: r.C |= 0x01; r.PC += 1; break;
+        case 0xC2: r.D |= 0x01; r.PC += 1; break;
+        case 0xC3: r.E |= 0x01; r.PC += 1; break;
+        case 0xC4: r.H |= 0x01; r.PC += 1; break;
+        case 0xC5: r.L |= 0x01; r.PC += 1; break;
+        case 0xC6: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) | 0x01); r.PC += 1; break;
+        case 0xC7: r.A |= 0x01; r.PC += 1; break;
 
-        // =====================================================================
-        //  SET 0, r8 (0xC0-0xC7)
-        // =====================================================================
-        case 0xC0: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B | (1 << 0); cpu.registers.PC += 1; }; break;
-        case 0xC1: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C | (1 << 0); cpu.registers.PC += 1; }; break;
-        case 0xC2: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D | (1 << 0); cpu.registers.PC += 1; }; break;
-        case 0xC3: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E | (1 << 0); cpu.registers.PC += 1; }; break;
-        case 0xC4: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H | (1 << 0); cpu.registers.PC += 1; }; break;
-        case 0xC5: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L | (1 << 0); cpu.registers.PC += 1; }; break;
-        case 0xC6: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) | (1 << 0)); cpu.registers.PC += 1; }; break;
-        case 0xC7: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A | (1 << 0); cpu.registers.PC += 1; }; break;
+        // SET 1 (0xC8-0xCF)
+        case 0xC8: r.B |= 0x02; r.PC += 1; break;
+        case 0xC9: r.C |= 0x02; r.PC += 1; break;
+        case 0xCA: r.D |= 0x02; r.PC += 1; break;
+        case 0xCB: r.E |= 0x02; r.PC += 1; break;
+        case 0xCC: r.H |= 0x02; r.PC += 1; break;
+        case 0xCD: r.L |= 0x02; r.PC += 1; break;
+        case 0xCE: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) | 0x02); r.PC += 1; break;
+        case 0xCF: r.A |= 0x02; r.PC += 1; break;
 
-        // =====================================================================
-        //  SET 1, r8 (0xC8-0xCF)
-        // =====================================================================
-        case 0xC8: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B | (1 << 1); cpu.registers.PC += 1; }; break;
-        case 0xC9: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C | (1 << 1); cpu.registers.PC += 1; }; break;
-        case 0xCA: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D | (1 << 1); cpu.registers.PC += 1; }; break;
-        case 0xCB: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E | (1 << 1); cpu.registers.PC += 1; }; break;
-        case 0xCC: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H | (1 << 1); cpu.registers.PC += 1; }; break;
-        case 0xCD: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L | (1 << 1); cpu.registers.PC += 1; }; break;
-        case 0xCE: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) | (1 << 1)); cpu.registers.PC += 1; }; break;
-        case 0xCF: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A | (1 << 1); cpu.registers.PC += 1; }; break;
+        // SET 2 (0xD0-0xD7)
+        case 0xD0: r.B |= 0x04; r.PC += 1; break;
+        case 0xD1: r.C |= 0x04; r.PC += 1; break;
+        case 0xD2: r.D |= 0x04; r.PC += 1; break;
+        case 0xD3: r.E |= 0x04; r.PC += 1; break;
+        case 0xD4: r.H |= 0x04; r.PC += 1; break;
+        case 0xD5: r.L |= 0x04; r.PC += 1; break;
+        case 0xD6: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) | 0x04); r.PC += 1; break;
+        case 0xD7: r.A |= 0x04; r.PC += 1; break;
 
-        // =====================================================================
-        //  SET 2, r8 (0xD0-0xD7)
-        // =====================================================================
-        case 0xD0: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B | (1 << 2); cpu.registers.PC += 1; }; break;
-        case 0xD1: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C | (1 << 2); cpu.registers.PC += 1; }; break;
-        case 0xD2: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D | (1 << 2); cpu.registers.PC += 1; }; break;
-        case 0xD3: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E | (1 << 2); cpu.registers.PC += 1; }; break;
-        case 0xD4: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H | (1 << 2); cpu.registers.PC += 1; }; break;
-        case 0xD5: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L | (1 << 2); cpu.registers.PC += 1; }; break;
-        case 0xD6: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) | (1 << 2)); cpu.registers.PC += 1; }; break;
-        case 0xD7: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A | (1 << 2); cpu.registers.PC += 1; }; break;
+        // SET 3 (0xD8-0xDF)
+        case 0xD8: r.B |= 0x08; r.PC += 1; break;
+        case 0xD9: r.C |= 0x08; r.PC += 1; break;
+        case 0xDA: r.D |= 0x08; r.PC += 1; break;
+        case 0xDB: r.E |= 0x08; r.PC += 1; break;
+        case 0xDC: r.H |= 0x08; r.PC += 1; break;
+        case 0xDD: r.L |= 0x08; r.PC += 1; break;
+        case 0xDE: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) | 0x08); r.PC += 1; break;
+        case 0xDF: r.A |= 0x08; r.PC += 1; break;
 
-        // =====================================================================
-        //  SET 3, r8 (0xD8-0xDF)
-        // =====================================================================
-        case 0xD8: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B | (1 << 3); cpu.registers.PC += 1; }; break;
-        case 0xD9: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C | (1 << 3); cpu.registers.PC += 1; }; break;
-        case 0xDA: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D | (1 << 3); cpu.registers.PC += 1; }; break;
-        case 0xDB: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E | (1 << 3); cpu.registers.PC += 1; }; break;
-        case 0xDC: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H | (1 << 3); cpu.registers.PC += 1; }; break;
-        case 0xDD: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L | (1 << 3); cpu.registers.PC += 1; }; break;
-        case 0xDE: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) | (1 << 3)); cpu.registers.PC += 1; }; break;
-        case 0xDF: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A | (1 << 3); cpu.registers.PC += 1; }; break;
+        // SET 4 (0xE0-0xE7)
+        case 0xE0: r.B |= 0x10; r.PC += 1; break;
+        case 0xE1: r.C |= 0x10; r.PC += 1; break;
+        case 0xE2: r.D |= 0x10; r.PC += 1; break;
+        case 0xE3: r.E |= 0x10; r.PC += 1; break;
+        case 0xE4: r.H |= 0x10; r.PC += 1; break;
+        case 0xE5: r.L |= 0x10; r.PC += 1; break;
+        case 0xE6: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) | 0x10); r.PC += 1; break;
+        case 0xE7: r.A |= 0x10; r.PC += 1; break;
 
-        // =====================================================================
-        //  SET 4, r8 (0xE0-0xE7)
-        // =====================================================================
-        case 0xE0: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B | (1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xE1: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C | (1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xE2: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D | (1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xE3: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E | (1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xE4: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H | (1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xE5: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L | (1 << 4); cpu.registers.PC += 1; }; break;
-        case 0xE6: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) | (1 << 4)); cpu.registers.PC += 1; }; break;
-        case 0xE7: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A | (1 << 4); cpu.registers.PC += 1; }; break;
+        // SET 5 (0xE8-0xEF)
+        case 0xE8: r.B |= 0x20; r.PC += 1; break;
+        case 0xE9: r.C |= 0x20; r.PC += 1; break;
+        case 0xEA: r.D |= 0x20; r.PC += 1; break;
+        case 0xEB: r.E |= 0x20; r.PC += 1; break;
+        case 0xEC: r.H |= 0x20; r.PC += 1; break;
+        case 0xED: r.L |= 0x20; r.PC += 1; break;
+        case 0xEE: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) | 0x20); r.PC += 1; break;
+        case 0xEF: r.A |= 0x20; r.PC += 1; break;
 
-        // =====================================================================
-        //  SET 5, r8 (0xE8-0xEF)
-        // =====================================================================
-        case 0xE8: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B | (1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xE9: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C | (1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xEA: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D | (1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xEB: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E | (1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xEC: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H | (1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xED: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L | (1 << 5); cpu.registers.PC += 1; }; break;
-        case 0xEE: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) | (1 << 5)); cpu.registers.PC += 1; }; break;
-        case 0xEF: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A | (1 << 5); cpu.registers.PC += 1; }; break;
+        // SET 6 (0xF0-0xF7)
+        case 0xF0: r.B |= 0x40; r.PC += 1; break;
+        case 0xF1: r.C |= 0x40; r.PC += 1; break;
+        case 0xF2: r.D |= 0x40; r.PC += 1; break;
+        case 0xF3: r.E |= 0x40; r.PC += 1; break;
+        case 0xF4: r.H |= 0x40; r.PC += 1; break;
+        case 0xF5: r.L |= 0x40; r.PC += 1; break;
+        case 0xF6: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) | 0x40); r.PC += 1; break;
+        case 0xF7: r.A |= 0x40; r.PC += 1; break;
 
-        // =====================================================================
-        //  SET 6, r8 (0xF0-0xF7)
-        // =====================================================================
-        case 0xF0: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B | (1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xF1: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C | (1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xF2: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D | (1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xF3: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E | (1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xF4: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H | (1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xF5: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L | (1 << 6); cpu.registers.PC += 1; }; break;
-        case 0xF6: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) | (1 << 6)); cpu.registers.PC += 1; }; break;
-        case 0xF7: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A | (1 << 6); cpu.registers.PC += 1; }; break;
+        // SET 7 (0xF8-0xFF)
+        case 0xF8: r.B |= 0x80; r.PC += 1; break;
+        case 0xF9: r.C |= 0x80; r.PC += 1; break;
+        case 0xFA: r.D |= 0x80; r.PC += 1; break;
+        case 0xFB: r.E |= 0x80; r.PC += 1; break;
+        case 0xFC: r.H |= 0x80; r.PC += 1; break;
+        case 0xFD: r.L |= 0x80; r.PC += 1; break;
+        case 0xFE: cpu.writeMemory8(r.HL, cpu.readMemory8(r.HL) | 0x80); r.PC += 1; break;
+        case 0xFF: r.A |= 0x80; r.PC += 1; break;
 
-        // =====================================================================
-        //  SET 7, r8 (0xF8-0xFF)
-        // =====================================================================
-        case 0xF8: execute = function (cpu: Cpu): void { cpu.registers.B = cpu.registers.B | (1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xF9: execute = function (cpu: Cpu): void { cpu.registers.C = cpu.registers.C | (1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xFA: execute = function (cpu: Cpu): void { cpu.registers.D = cpu.registers.D | (1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xFB: execute = function (cpu: Cpu): void { cpu.registers.E = cpu.registers.E | (1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xFC: execute = function (cpu: Cpu): void { cpu.registers.H = cpu.registers.H | (1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xFD: execute = function (cpu: Cpu): void { cpu.registers.L = cpu.registers.L | (1 << 7); cpu.registers.PC += 1; }; break;
-        case 0xFE: execute = function (cpu: Cpu): void { cpu.writeMemory8(cpu.registers.HL, cpu.readMemory8(cpu.registers.HL) | (1 << 7)); cpu.registers.PC += 1; }; break;
-        case 0xFF: execute = function (cpu: Cpu): void { cpu.registers.A = cpu.registers.A | (1 << 7); cpu.registers.PC += 1; }; break;
-
-
-        default:
-            throw new Error(`Unknown CB-prefixed opcode: ${toHex(instruction.opcode)}`);
+        default: break;
     }
-
-    return new InstructionActions(execute);
 }

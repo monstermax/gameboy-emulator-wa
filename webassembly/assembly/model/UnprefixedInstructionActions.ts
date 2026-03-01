@@ -1,15 +1,15 @@
-// Gameboy Emulator - CPU Instructions - Unprefixed (dispatcher)
+// Gameboy Emulator - Unprefixed instruction dispatcher
 
-import { CpuInstrution, InstructionActions } from "./CpuInstrution";
-import { loadInstructionActions_0x00_0x7F } from "./UnprefixedInstructionActions_0x00_0x7F";
-import { loadInstructionActions_0x80_0xFF } from "./UnprefixedInstructionActions_0x80_0xFF";
+import { Cpu } from "./Cpu";
+import { executeUnprefixed_0x00_0x7F } from "./UnprefixedInstructionActions_0x00_0x7F";
+import { executeUnprefixed_0x80_0xFF } from "./UnprefixedInstructionActions_0x80_0xFF";
 
 
-export function loadInstructionActions(instruction: CpuInstrution): InstructionActions {
-    if (instruction.opcode <= 0x7F) {
-        return loadInstructionActions_0x00_0x7F(instruction);
+export function executeUnprefixed(cpu: Cpu, opcode: u8): void {
+    if (opcode <= 0x7F) {
+        executeUnprefixed_0x00_0x7F(cpu, opcode);
 
     } else {
-        return loadInstructionActions_0x80_0xFF(instruction);
+        executeUnprefixed_0x80_0xFF(cpu, opcode);
     }
 }
