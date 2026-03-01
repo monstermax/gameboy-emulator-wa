@@ -12,19 +12,15 @@ export const useEmulator = (romFilename: string): EmulatorHook => {
         if (!emulator) return;
 
         const _init = async () => {
-            await initEmulator(emulator);
+            await emulator.init()
+            console.log(`[WEB] Emulator initialized`)
+
             emulator.runEmulatorCycles()
         }
 
         const timer = setTimeout(_init, 1);
         return () => clearTimeout(timer);
     }, [])
-
-
-    async function initEmulator(emulator: EmulatorWeb): Promise<void> {
-        await emulator.init()
-        console.log(`[WEB] Emulator initialized`)
-    }
 
 
     const emulatorHook: EmulatorHook = {
