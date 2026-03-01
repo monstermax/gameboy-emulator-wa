@@ -1,31 +1,31 @@
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import { useEmulator } from './hooks/useEmulator'
+import { GameboyScreen } from './components/GameboyScreen'
 
 
-const romFilename = "SuperMarioLand.World.Rev1.gb";
+//const romFilename = "SuperMarioLand.World.Rev1.gb";
+const romFilename = "Tetris.World.RevA.gb";
+//const romFilename = "DuckTales.USA.gb";
 
 
 function App() {
-    const emulatorHook = useEmulator(romFilename)
+    const { emulator, canvasRef, ready } = useEmulator(romFilename)
 
     useEffect(() => {
-        if (!emulatorHook.emulator) return;
-
-        const _use = () => {
-            console.log('[WEB] Emulator mounted by App');
-        }
-
-        const timer = setTimeout(_use, 1);
-        return () => clearTimeout(timer);
-
-    }, [emulatorHook.emulator])
+        if (!ready) return;
+        console.log('[WEB] Emulator ready, rendering started');
+    }, [ready])
 
     return (
-        <>
-            Ready
-        </>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: 32 }}>
+            <h2>Game Boy</h2>
+
+            <GameboyScreen canvasRef={canvasRef} scale={3} />
+
+            {!ready && <p>Loading...</p>}
+        </div>
     )
 }
 

@@ -1,11 +1,14 @@
+// Gameboy Emulator - React hook
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { EmulatorWeb } from "../lib/EmulatorWeb";
 
 
 export const useEmulator = (romFilename: string): EmulatorHook => {
-    const [emulator] = useState(() => new EmulatorWeb(romFilename))
+    const [emulator] = useState(() => new EmulatorWeb())
+    const [ready, setReady] = useState(false)
+    const canvasRef = useRef<HTMLCanvasElement>(null)
 
 
     useEffect(() => {
@@ -13,27 +16,47 @@ export const useEmulator = (romFilename: string): EmulatorHook => {
 
         const _init = async () => {
             await emulator.init()
+            await emulator.loadRom(romFilename)
             console.log(`[WEB] Emulator initialized`)
 
-            emulator.runEmulatorCycles()
+            //emulator.runEmulatorCycles() // OLD
+
+            setReady(true)
         }
 
         const timer = setTimeout(_init, 1);
-        return () => clearTimeout(timer);
+
+        return () => {
+            clearTimeout(timer);
+            emulator.stop();
+        }
     }, [])
 
 
-    const emulatorHook: EmulatorHook = {
-        emulator,
-    }
+    // Attach canvas and start rendering once both ready and canvas are available
+    useEffect(() => {
+        if (!ready || !canvasRef.current) return;
+        console.log('started')
 
-    return emulatorHook;
+        emulator.attachCanvas(canvasRef.current)
+        emulator.start()
+
+        return () => {
+            emulator.stop()
+        }
+    }, [ready])
+
+
+    return {
+        emulator,
+        canvasRef,
+        ready,
+    }
 }
 
 
 export type EmulatorHook = {
     emulator: EmulatorWeb;
+    canvasRef: React.RefObject<HTMLCanvasElement | null>;
+    ready: boolean;
 }
-
-
-

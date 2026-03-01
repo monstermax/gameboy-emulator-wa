@@ -1,3 +1,4 @@
+// Gameboy Emulator - React EmulatorWeb
 
 import { fetchRom } from "./rom_reader";
 import { getRomHeader } from "./rom_utils";
@@ -10,18 +11,29 @@ import type { __Internref8 } from "../../../webassembly/build/release";
 
 type ComputerRef = __Internref8;
 
+const SCREEN_WIDTH = 160;
+const SCREEN_HEIGHT = 144;
+
 
 export class EmulatorWeb {
-    romFilename: string;
     wasmExports: WasmExports | null = null;
     computer: ComputerRef | null = null;
 
+    // Canvas rendering
+    private canvas: HTMLCanvasElement | null = null;
+    private ctx: CanvasRenderingContext2D | null = null;
+    private imageData: ImageData | null = null;
+    private animFrameId: number = 0;
+    private running: boolean = false;
 
-    constructor(romFilename: string) {
-        this.romFilename = romFilename;
-    }
+
+    constructor() {}
 
 
+    /**
+     * Initialize the WASM module and create the Computer instance.
+     * Must be called before loadRom().
+     */
     async init(): Promise<void> {
         await this.mountWasm()
 
@@ -30,16 +42,13 @@ export class EmulatorWeb {
         this.computer = this.wasmExports.runEmulator();
         console.log(`[WEB] Computer initialized`)
 
-        await this.loadintructionsSet()
-        await this.loadRom()
+        await this.loadInstructionsSet()
     }
 
 
     private async mountWasm(): Promise<void> {
         const imports: { env: unknown } = {
-            env: {
-
-            },
+            env: {},
         };
 
         const wasmModule = await fetchWasmModule(true);
@@ -48,34 +57,129 @@ export class EmulatorWeb {
     }
 
 
-    private async loadintructionsSet(): Promise<void> {
+    private async loadInstructionsSet(): Promise<void> {
         asserts(this.wasmExports, "wasmExports required");
         asserts(this.computer, "computer required");
 
         const json = JSON.stringify(instructionsSet);
         this.wasmExports.injectInstructionsSet(this.computer, json);
-
-        //console.log('[WEB] InstructionsSet loaded');
     }
 
 
-    private async loadRom(): Promise<void> {
-        asserts(this.wasmExports, "wasmExports required");
-        asserts(this.computer, "computer required");
+    /**
+     * Load a ROM file into the emulator.
+     * Can be called multiple times to switch ROMs.
+     */
+    async loadRom(romFilename: string): Promise<void> {
+        asserts(this.wasmExports, "wasmExports required — call init() first");
+        asserts(this.computer, "computer required — call init() first");
 
-        const romFile = await fetchRom(this.romFilename)
+        const romFile = await fetchRom(romFilename)
 
         const romHeader = getRomHeader(romFile);
-
         console.log('[WEB] romHeader', romHeader);
         //console.log('[WEB] Cartridge Type:', romHeader.cartridgeType.readUInt8());
-        //console.log('[WEB] Rom Size:', romFile.byteLength);
-        //console.log('[WEB] Rom Title:', romHeader.romTitle.toString('ascii'))
+        //console.log('[WEB] Rom Title:', romFile.byteLength);
+        //console.log('[WEB] Rom Size:', romHeader.romTitle.toString('ascii'));
 
         const romFileArr: Uint8Array = new Uint8Array(romFile);
         this.wasmExports.injectRom(this.computer, romFileArr);
     }
 
+
+    // =========================================================================
+    //  Canvas / Rendering
+    // =========================================================================
+
+    /**
+     * Attach a <canvas> element for screen output.
+     * The canvas should be at least 160x144. CSS-scale for zoom.
+     */
+    public attachCanvas(canvas: HTMLCanvasElement): void {
+        this.canvas = canvas;
+        this.canvas.width = SCREEN_WIDTH;
+        this.canvas.height = SCREEN_HEIGHT;
+
+        this.ctx = canvas.getContext("2d");
+        if (!this.ctx) throw new Error("Could not get 2D context");
+
+        // Pre-allocate ImageData (reused every frame)
+        this.imageData = this.ctx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
+        this.imageData.data.fill(255);
+    }
+
+
+    /**
+     * Start the emulation loop (~60 FPS via requestAnimationFrame).
+     */
+    public start(): void {
+        if (this.running) return;
+        this.running = true;
+        this.loop();
+    }
+
+
+    /**
+     * Stop the emulation loop.
+     */
+    public stop(): void {
+        this.running = false;
+        if (this.animFrameId) {
+            cancelAnimationFrame(this.animFrameId);
+            this.animFrameId = 0;
+        }
+    }
+
+
+    private loop = (): void => {
+        if (!this.running) return;
+
+        this.stepFrame();
+        this.drawFrame();
+
+        this.animFrameId = requestAnimationFrame(this.loop);
+    }
+
+
+    /**
+     * Execute one full Game Boy frame (~70224 T-cycles).
+     */
+    private stepFrame(): void {
+        asserts(this.wasmExports, "wasmExports required");
+        asserts(this.computer, "computer required");
+
+        this.wasmExports.runFrame(this.computer);
+    }
+
+
+    /**
+     * Read the PPU framebuffer and draw it onto the canvas.
+     */
+    private drawFrame(): void {
+        if (!this.ctx || !this.imageData || !this.wasmExports || !this.computer) return;
+
+        // Get the grayscale framebuffer from WASM (160*144 bytes)
+        const grayscale: Uint8Array = this.wasmExports.getFramebuffer(this.computer);
+
+        // Convert grayscale → RGBA
+        const pixels = this.imageData.data;
+
+        for (let i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
+            const shade = grayscale[i];
+            const offset = i * 4;
+            pixels[offset]     = shade; // R
+            pixels[offset + 1] = shade; // G
+            pixels[offset + 2] = shade; // B
+            pixels[offset + 3] = 255;   // A
+        }
+
+        this.ctx.putImageData(this.imageData, 0, 0);
+    }
+
+
+    // =========================================================================
+    //  Legacy (still works for testing without canvas)
+    // =========================================================================
 
     public runEmulatorCycles() {
         asserts(this.wasmExports, "wasmExports required");
@@ -83,5 +187,4 @@ export class EmulatorWeb {
 
         this.wasmExports.runCycles(this.computer, 100_000)
     }
-
 }

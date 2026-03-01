@@ -48,7 +48,7 @@ export abstract class Mbc {
         const extRamSize = this.ramBankCount * RAM_BANK_SIZE;
         this.extRam = new StaticArray<u8>(extRamSize);
 
-        console.log(`[MBC] Type: ${toHex(cartridgeType)} | ROM Banks: ${this.romBankCount} | RAM Banks: ${this.ramBankCount} | Battery: ${this.hasBattery ? "Y" : "N"}`);
+        console.log(`[WASM] MBC | Type: ${toHex(cartridgeType)} | ROM Banks: ${this.romBankCount} | RAM Banks: ${this.ramBankCount} | Battery: ${this.hasBattery ? "Y" : "N"}`);
     }
 
     /** Lecture dans la zone cartouche (0x0000-0x7FFF ou 0xA000-0xBFFF) */
@@ -268,7 +268,7 @@ export function createMbc(
     }
 
     // TODO: MBC2, MBC3, MBC5...
-    console.log(`[MBC] WARNING: Unsupported cartridge type ${toHex(cartridgeType)}, falling back to NoMbc`);
+    console.log(`[WASM] MBC | WARNING: Unsupported cartridge type ${toHex(cartridgeType)}, falling back to NoMbc`);
     return new NoMbc(romData, cartridgeType, romSizeCode, ramSizeCode);
 }
 
