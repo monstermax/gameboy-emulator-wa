@@ -7,11 +7,9 @@ import { Operand } from "../types/cpu_instructions.types";
 
 
 export class InstructionActions {
-    public fetchData: (cpu: Cpu) => Uint8Array;
     public execute: (cpu: Cpu) => void;
 
-    constructor(fetchData: (cpu: Cpu) => Uint8Array, execute: (cpu: Cpu) => void) {
-        this.fetchData = fetchData;
+    constructor(execute: (cpu: Cpu) => void) {
         this.execute = execute;
     }
 }
@@ -65,4 +63,3 @@ export class CpuInstrution {
         }
     }
 }
-
