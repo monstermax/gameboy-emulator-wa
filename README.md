@@ -11,7 +11,7 @@
 ## Project structure
 - cli : emulator for nodejs. not yet functional
 - roms : gameboy roms/games
-- web : emulator for vitejs/react. works with some bug and no audio support
+- web : emulator for vitejs/react. Works almost perfectly (a few minor bugs, especially with the random number generator) 
 - webassembly : core emulator
 
 
@@ -56,7 +56,6 @@ ts-node src/emulator_cli.ts # not yet functional
 
 
 ## Roadmap
-- web: missing audio support
 - cli: missing screen+inputs+audio support
 
 
