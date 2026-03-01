@@ -23,3 +23,4 @@
 ## Opcodes
 - https://rgbds.gbdev.io/docs/v1.0.1/gbz80.7
 - https://gbdev.io/gb-opcodes/optables/
+- https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html

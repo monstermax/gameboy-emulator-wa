@@ -5,6 +5,9 @@ import { high16, low16, toHex } from "./lib/lib_numbers";
 import { asserts } from "./utils";
 
 
+// Gameboy Emulator
+
+
 const registers8 = [
     'A', 'B', 'C', 'D', // Data 8-bit Registers
     'H', 'L',           // Data 8-bit Registers
@@ -157,7 +160,19 @@ export class Cpu {
                 }
                 break;
 
-            case 0x32: // LD  HL, A
+            case 0x31: // LD SP, n16
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += cpu.instruction.bytes;
+                }
+                break;
+
+            case 0x32: // LD HL, A
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += cpu.instruction.bytes;
+                }
+                break;
+
+            case 0x36: // SWAP HL
                 execute = function (cpu: Cpu) {
                     cpu.registers.PC += cpu.instruction.bytes;
                 }
@@ -229,6 +244,12 @@ export class Cpu {
                 }
                 break;
 
+            case 0xAF: // XOR A, A
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += cpu.instruction.bytes;
+                }
+                break;
+
             case 0xC0: // RET NZ
                 execute = function (cpu: Cpu) {
                     cpu.registers.PC += cpu.instruction.bytes;
@@ -247,10 +268,16 @@ export class Cpu {
                 }
                 break;
 
-            case 0xCD: // PREFIX
+            case 0xCB: // PREFIX
                 execute = function (cpu: Cpu) {
                     cpu.currentInstructionUsePrefix = true
                     cpu.registers.PC += 1
+                }
+                break;
+
+            case 0xCD: // CALL
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += cpu.instruction.bytes;
                 }
                 break;
 
@@ -278,6 +305,18 @@ export class Cpu {
                 }
                 break;
 
+            case 0xF3: // DI
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += cpu.instruction.bytes;
+                }
+                break;
+
+            case 0xFE: // CP A, n8
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += cpu.instruction.bytes;
+                }
+                break;
+
 
             default:
                 throw new Error(`Instruction "${toHex(this.instruction.opcode)}" not found`);
@@ -296,7 +335,7 @@ export class Cpu {
         switch (this.instruction.opcode) {
             case 0x00: // RLC r8
                 execute = function (cpu: Cpu) {
-                    cpu.registers.PC += cpu.instruction.bytes - 1;
+                    cpu.registers.PC += cpu.instruction.bytes - 1; // -1 car on a deja incrémenté la PC quand on a découvert le préfix
                 }
                 break;
 
