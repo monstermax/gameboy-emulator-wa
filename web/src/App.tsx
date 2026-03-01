@@ -19,8 +19,8 @@ function App() {
     }, [ready])
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: 32 }}>
-            <h2>Game Boy</h2>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: 10, justifyContent: "center" }}>
+            <h2>Game Boy Emulator</h2>
 
             <GameboyScreen canvasRef={canvasRef} scale={3} />
 
