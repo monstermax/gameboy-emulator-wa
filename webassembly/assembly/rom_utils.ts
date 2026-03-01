@@ -1,38 +1,38 @@
 
 
 class RomHeader {
-    entrypoint: ArrayBuffer = new ArrayBuffer(0);
-    nintendoLogo: ArrayBuffer = new ArrayBuffer(0);
-    romTitle: ArrayBuffer = new ArrayBuffer(0);
-    manufacturerCode: ArrayBuffer = new ArrayBuffer(0);
-    cgbFlag: ArrayBuffer = new ArrayBuffer(0);
-    newLicenseeCode: ArrayBuffer = new ArrayBuffer(0);
-    sgbFlag: ArrayBuffer = new ArrayBuffer(0);
-    cartridgeType: ArrayBuffer = new ArrayBuffer(0);
-    romSize: ArrayBuffer = new ArrayBuffer(0);
-    ramSize: ArrayBuffer = new ArrayBuffer(0);
-    destinationCode: ArrayBuffer = new ArrayBuffer(0);
-    oldLicenseeCode: ArrayBuffer = new ArrayBuffer(0);
-    maskRomVersionNumber: ArrayBuffer = new ArrayBuffer(0);
-    headerChecksum: ArrayBuffer = new ArrayBuffer(0);
-    globalChecksum: ArrayBuffer = new ArrayBuffer(0);
+    entrypoint: Uint8Array = new Uint8Array(0);
+    nintendoLogo: Uint8Array = new Uint8Array(0);
+    romTitle: Uint8Array = new Uint8Array(0);
+    manufacturerCode: Uint8Array = new Uint8Array(0);
+    cgbFlag: Uint8Array = new Uint8Array(0);
+    newLicenseeCode: Uint8Array = new Uint8Array(0);
+    sgbFlag: Uint8Array = new Uint8Array(0);
+    cartridgeType: Uint8Array = new Uint8Array(0);
+    romSize: Uint8Array = new Uint8Array(0);
+    ramSize: Uint8Array = new Uint8Array(0);
+    destinationCode: Uint8Array = new Uint8Array(0);
+    oldLicenseeCode: Uint8Array = new Uint8Array(0);
+    maskRomVersionNumber: Uint8Array = new Uint8Array(0);
+    headerChecksum: Uint8Array = new Uint8Array(0);
+    globalChecksum: Uint8Array = new Uint8Array(0);
 
     constructor(
-        entrypoint: ArrayBuffer,
-        nintendoLogo: ArrayBuffer,
-        romTitle: ArrayBuffer,
-        manufacturerCode: ArrayBuffer,
-        cgbFlag: ArrayBuffer,
-        newLicenseeCode: ArrayBuffer,
-        sgbFlag: ArrayBuffer,
-        cartridgeType: ArrayBuffer,
-        romSize: ArrayBuffer,
-        ramSize: ArrayBuffer,
-        destinationCode: ArrayBuffer,
-        oldLicenseeCode: ArrayBuffer,
-        maskRomVersionNumber: ArrayBuffer,
-        headerChecksum: ArrayBuffer,
-        globalChecksum: ArrayBuffer,
+        entrypoint: Uint8Array,
+        nintendoLogo: Uint8Array,
+        romTitle: Uint8Array,
+        manufacturerCode: Uint8Array,
+        cgbFlag: Uint8Array,
+        newLicenseeCode: Uint8Array,
+        sgbFlag: Uint8Array,
+        cartridgeType: Uint8Array,
+        romSize: Uint8Array,
+        ramSize: Uint8Array,
+        destinationCode: Uint8Array,
+        oldLicenseeCode: Uint8Array,
+        maskRomVersionNumber: Uint8Array,
+        headerChecksum: Uint8Array,
+        globalChecksum: Uint8Array,
     ) {
         this.entrypoint = entrypoint;
         this.nintendoLogo = nintendoLogo;
@@ -53,24 +53,24 @@ class RomHeader {
 }
 
 
-export function getRomHeader(romFile: ArrayBuffer): RomHeader {
-    const extract = (romFile: ArrayBuffer, start: u32, end: u32): ArrayBuffer => romFile.slice(start, end + 1);
+export function getRomHeader(romFile: Uint8Array): RomHeader {
+    const extract = (romFile: Uint8Array, start: u32, end: u32): Uint8Array => romFile.slice(start, end + 1);
 
-    const entrypoint: ArrayBuffer = extract(romFile, 0x0100, 0x0103);
-    const nintendoLogo: ArrayBuffer = extract(romFile, 0x0104, 0x0133);
-    const romTitle: ArrayBuffer = extract(romFile, 0x0134, 0x0143);
-    const manufacturerCode: ArrayBuffer = extract(romFile, 0x013F, 0x0142);
-    const cgbFlag: ArrayBuffer = extract(romFile, 0x0143, 0x0143);
-    const newLicenseeCode: ArrayBuffer = extract(romFile, 0x0144, 0x0145);
-    const sgbFlag: ArrayBuffer = extract(romFile, 0x0146, 0x0146);
-    const cartridgeType: ArrayBuffer = extract(romFile, 0x0147, 0x0147);
-    const romSize: ArrayBuffer = extract(romFile, 0x0148, 0x0148);
-    const ramSize: ArrayBuffer = extract(romFile, 0x0149, 0x0149);
-    const destinationCode: ArrayBuffer = extract(romFile, 0x014A, 0x014A);
-    const oldLicenseeCode: ArrayBuffer = extract(romFile, 0x014B, 0x014B);
-    const maskRomVersionNumber: ArrayBuffer = extract(romFile, 0x014C, 0x014C);
-    const headerChecksum: ArrayBuffer = extract(romFile, 0x014D, 0x014D);
-    const globalChecksum: ArrayBuffer = extract(romFile, 0x014E, 0x014F);
+    const entrypoint = extract(romFile, 0x0100, 0x0103);
+    const nintendoLogo = extract(romFile, 0x0104, 0x0133);
+    const romTitle = extract(romFile, 0x0134, 0x0143);
+    const manufacturerCode = extract(romFile, 0x013F, 0x0142);
+    const cgbFlag = extract(romFile, 0x0143, 0x0143);
+    const newLicenseeCode = extract(romFile, 0x0144, 0x0145);
+    const sgbFlag = extract(romFile, 0x0146, 0x0146);
+    const cartridgeType = extract(romFile, 0x0147, 0x0147);
+    const romSize = extract(romFile, 0x0148, 0x0148);
+    const ramSize = extract(romFile, 0x0149, 0x0149);
+    const destinationCode = extract(romFile, 0x014A, 0x014A);
+    const oldLicenseeCode = extract(romFile, 0x014B, 0x014B);
+    const maskRomVersionNumber = extract(romFile, 0x014C, 0x014C);
+    const headerChecksum = extract(romFile, 0x014D, 0x014D);
+    const globalChecksum = extract(romFile, 0x014E, 0x014F);
 
 
     const romHeader = new RomHeader(

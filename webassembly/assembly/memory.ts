@@ -139,9 +139,10 @@ abstract class Memory {
 export class Rom extends Memory {
     private computer: Computer;
 
-    constructor(computer: Computer) {
+    constructor(computer: Computer, storage: StaticArray<u8>) {
         super(MEMORY_MAP.ROM_END - MEMORY_MAP.ROM_START);
         this.computer = computer;
+        this.storage = storage;
     }
 
 }

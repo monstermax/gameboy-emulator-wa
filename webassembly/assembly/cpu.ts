@@ -21,9 +21,11 @@ class Instrution {
     public opcode: u8 = 0;
     public prefixedOpcode: u8 = 0;
     public bytes: u16 = 0;
+    public prefixedInstruction: boolean = false;
 
-    constructor(opcode: u8) {
+    constructor(opcode: u8, prefixedInstruction: boolean = false) {
         this.opcode = opcode;
+        this.prefixedInstruction = prefixedInstruction;
     }
 }
 
@@ -46,6 +48,7 @@ export class Cpu {
     private instruction: Instrution = new Instrution(0);
     private actions: InstructionActions = new InstructionActions(() => new Uint8Array(0), () => {});
     private fetchedData: Uint8Array = new Uint8Array(0);
+    private currentInstructionUsePrefix: boolean = false;
 
 
     constructor(computer: Computer) {
@@ -66,16 +69,21 @@ export class Cpu {
 
         console.log(`[CPU] Current address : ${toHex(this.registers.PC, 4)} => opcode = ${toHex(instructionCode)}`)
 
-        this.instruction = new Instrution(instructionCode)
+        this.instruction = new Instrution(instructionCode, this.currentInstructionUsePrefix)
 
-        this.loadInstructionActions()
+        if (this.currentInstructionUsePrefix) {
+            this.loadPrefixedInstructionActions()
+
+        } else {
+            this.loadInstructionActions()
+        }
     }
+
 
 
     loadInstructionActions(): void {
         let fetchData: (cpu: Cpu) => Uint8Array = () => new Uint8Array(0);
         let execute: (cpu: Cpu) => void = () => {};
-
 
         switch (this.instruction.opcode) {
             case 0x00: // NOP
@@ -84,8 +92,94 @@ export class Cpu {
                 }
                 break;
 
+            case 0x20: // JR NZ, e8
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 2 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0x21: // LD JL, n16
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 3 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0x27: // DAA
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 1 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0x46: // LD B, HL
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 1 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0x7B: // LD A, E
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 1 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0x7E: // LD A, HL
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 1 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0x86: // ADD A, HL
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 1 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0xA0: // AND A, B
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 1 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0xA7: // RES 4, A
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 2 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0xC3: // JP n16
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 3 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0xC9: // RET
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 1 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0xCD: // PREFIX
+                execute = function (cpu: Cpu) {
+                    cpu.currentInstructionUsePrefix = true
+                    cpu.registers.PC += 1
+                }
+                break;
+
+            case 0xE6: // AND A, n8
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 2 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0xF0: // LDH A, [a8]
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 2 //cpu.instruction.bytes;
+                }
+                break;
+
+
             default:
-                console.warn(`Instruction "${toHex(this.instruction.opcode)}" not found`);
+                throw new Error(`Instruction "${toHex(this.instruction.opcode)}" not found`);
                 break;
         }
 
@@ -93,9 +187,40 @@ export class Cpu {
         this.actions.execute = execute;
     }
 
+
+    loadPrefixedInstructionActions(): void {
+        let fetchData: (cpu: Cpu) => Uint8Array = () => new Uint8Array(0);
+        let execute: (cpu: Cpu) => void = () => {};
+
+        switch (this.instruction.opcode) {
+            case 0x00: // RLC r8
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 2 //cpu.instruction.bytes;
+                }
+                break;
+
+            case 0xE6: // SET u3,[HL]
+                execute = function (cpu: Cpu) {
+                    cpu.registers.PC += 2 //cpu.instruction.bytes;
+                }
+                break;
+
+
+            default:
+                throw new Error(`Instruction (0xCB prefixed) "${toHex(this.instruction.opcode)}" not found`);
+                break;
+        }
+
+        this.actions.fetchData = fetchData;
+        this.actions.execute = execute;
+        this.currentInstructionUsePrefix = false;
+    }
+
+
     fetchInstructionData(): void {
         this.fetchedData = this.actions.fetchData(this)
     }
+
 
     executeInstruction(): void {
         this.actions.execute(this)

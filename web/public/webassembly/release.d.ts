@@ -11,9 +11,9 @@ declare namespace __AdaptedExports {
   export function injectInstructionsSet(): void;
   /**
    * assembly/index/injectRom
-   * @param data `~lib/arraybuffer/ArrayBuffer`
+   * @param data `~lib/typedarray/Uint8Array`
    */
-  export function injectRom(data: ArrayBuffer): void;
+  export function injectRom(data: Uint8Array): void;
 }
 /** Instantiates the compiled WebAssembly module with the given imports. */
 export declare function instantiate(module: WebAssembly.Module, imports: {

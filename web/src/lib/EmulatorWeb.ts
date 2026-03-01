@@ -53,7 +53,8 @@ export class EmulatorWeb {
         console.log('[WEB] romHeader', romHeader)
         console.log('[WEB] romTitle:', romHeader.romTitle.toString('ascii'))
 
-        this.wasmExports.injectRom(romFile.buffer);
+        const romFileArr: Uint8Array = new Uint8Array(romFile);
+        this.wasmExports.injectRom(romFileArr);
     }
 
 

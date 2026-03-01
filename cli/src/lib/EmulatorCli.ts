@@ -55,7 +55,8 @@ export class EmulatorCli {
         console.log('[CLI] romHeader', romHeader);
         console.log('[CLI] romTitle:', romHeader.romTitle.toString('ascii'));
 
-        this.wasmExports.injectRom(romFile.buffer);
+        const romFileArr: Uint8Array = new Uint8Array(romFile);
+        this.wasmExports.injectRom(romFileArr);
     }
 
 

@@ -28,17 +28,11 @@ export async function instantiate(module, imports = {}) {
   const memory = exports.memory || imports.env.memory;
   const adaptedExports = Object.setPrototypeOf({
     injectRom(data) {
-      // assembly/index/injectRom(~lib/arraybuffer/ArrayBuffer) => void
-      data = __lowerBuffer(data) || __notnull();
+      // assembly/index/injectRom(~lib/typedarray/Uint8Array) => void
+      data = __lowerTypedArray(Uint8Array, 13, 0, data) || __notnull();
       exports.injectRom(data);
     },
   }, exports);
-  function __lowerBuffer(value) {
-    if (value == null) return 0;
-    const pointer = exports.__new(value.byteLength, 1) >>> 0;
-    new Uint8Array(memory.buffer).set(new Uint8Array(value), pointer);
-    return pointer;
-  }
   function __liftString(pointer) {
     if (!pointer) return null;
     const
@@ -50,8 +44,30 @@ export async function instantiate(module, imports = {}) {
     while (end - start > 1024) string += String.fromCharCode(...memoryU16.subarray(start, start += 1024));
     return string + String.fromCharCode(...memoryU16.subarray(start, end));
   }
+  function __lowerTypedArray(constructor, id, align, values) {
+    if (values == null) return 0;
+    const
+      length = values.length,
+      buffer = exports.__pin(exports.__new(length << align, 1)) >>> 0,
+      header = exports.__new(12, id) >>> 0;
+    __setU32(header + 0, buffer);
+    __dataview.setUint32(header + 4, buffer, true);
+    __dataview.setUint32(header + 8, length << align, true);
+    new constructor(memory.buffer, buffer, length).set(values);
+    exports.__unpin(buffer);
+    return header;
+  }
   function __notnull() {
     throw TypeError("value must not be null");
+  }
+  let __dataview = new DataView(memory.buffer);
+  function __setU32(pointer, value) {
+    try {
+      __dataview.setUint32(pointer, value, true);
+    } catch {
+      __dataview = new DataView(memory.buffer);
+      __dataview.setUint32(pointer, value, true);
+    }
   }
   return adaptedExports;
 }
