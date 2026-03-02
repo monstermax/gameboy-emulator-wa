@@ -10,6 +10,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^25.3.2"
+    "@types/node": "^25.3.2",
+    "@types/terminal-kit": "^2.5.7"
+  },
+  "dependencies": {
+    "@kmamal/sdl": "^0.11.13",
+    "@napi-rs/canvas": "^0.1.95",
+    "node-sdl": "^3.0.3",
+    "terminal-kit": "^3.1.2"
   }
 }

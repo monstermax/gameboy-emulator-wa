@@ -1,9 +1,7 @@
 // Gameboy Emulator - NodeJS cli
 
-import { EmulatorCli } from './lib/EmulatorCli';
-
-
-type DisplayType = "auto" | "framebuffer" | "electron" | "SDL" | "stream";
+import { EmulatorCli } from './lib/EmulatorCli.ansi';
+//import { EmulatorCli } from './lib/EmulatorCli.sdl';
 
 
 //const romFilename = "SuperMarioLand.World.Rev1.gb";
@@ -12,7 +10,6 @@ const romFilename = "Tetris.World.RevA.gb";
 
 
 async function main() {
-    const displayType: DisplayType = "auto"; // TODO
 
     const emulator = new EmulatorCli()
 
@@ -23,11 +20,7 @@ async function main() {
     //emulator.runEmulatorCycles() // OLD
 
 
-    // En fonction de "displayType" ...
-
-    // TODO
-    //let canvasRef: HTMLCanvasElement | null = null;
-    //emulator.attachCanvas(canvasRef); // Possibilité d'afficher un canvas en console ? Framebuffer ?
+    //emulator.attachCanvas(canvas);
 
     // OR
     //emulator.attachStream(); // diffuse l'image via un flux mp4 (RTSP ?)

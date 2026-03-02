@@ -32,3 +32,37 @@
 - **Mobile** — touch controls pour jouer sur téléphone
 - **Debugger** — step-by-step, breakpoints, visionneuse VRAM/tiles
 - **Game Boy Color** — double speed, VRAM banks, palettes couleur (gros chantier)
+
+
+
+
+---
+
+
+Voici tes options réalistes en Node.js :
+
+**Display :**
+
+1. **Sixel / Kitty graphics** — le terminal affiche directement des images pixel par pixel. Marche dans iTerm2, WezTerm, Kitty, pas dans le Terminal macOS de base. Zéro dépendance native. ~15-30 FPS. Bonne option pour un mode "quick test".
+
+2. **SDL via node-sdl2** (ou `@aspect-build/sdl2`) — ouvre une vraie fenêtre native avec accès direct au framebuffer. C'est ce que 95% des émulateurs CLI utilisent. Gère aussi les inputs clavier/gamepad nativement. La meilleure option pour jouer.
+
+==> https://github.com/kmamal/node-sdl
+
+3. **Electron** — overkill. Tu réutiliserais juste ton frontend web dans une fenêtre desktop. Autant rester sur le navigateur.
+
+4. **Stream vidéo** (ffmpeg pipe → RTSP/HLS) — fun mais latence énorme, inutilisable pour jouer. Intéressant uniquement pour du spectacle/streaming.
+
+**Inputs :**
+
+1. **stdin raw mode** — `process.stdin.setRawMode(true)` capte les touches clavier directement. Marche partout, suffisant pour jouer.
+
+2. **SDL input** — si tu prends SDL pour le display, tu as le clavier + gamepad gratuitement.
+
+3. **Gamepad via `node-hid`** — accès USB direct aux manettes, mais complexe à setup.
+
+**Ma recommandation :**
+
+Fais **deux modes** :
+- **`headless`** : stdin raw mode pour les inputs, sixel pour le display (ou pas de display du tout, juste pour les tests/benchmarks)
+- **`sdl`** : fenêtre SDL2 native pour display + inputs — c'est ton mode "jouable"

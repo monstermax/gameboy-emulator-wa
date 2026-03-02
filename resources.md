@@ -25,3 +25,10 @@
 - https://rgbds.gbdev.io/docs/v1.0.1/gbz80.7
 - https://gbdev.io/gb-opcodes/optables/
 - https://www.pastraiser.com/cpu/gameboy/gameboy_opcodes.html
+
+
+## Misc
+- https://github.com/alanvivona/gameboy => A gameboy assembler implemented from scratch
+- https://github.com/nakardo/node-gameboy => A Gameboy emulator runnable on browsers or server side
+- https://github.com/kmamal/node-sdl => SDL bindings for Node.js
+

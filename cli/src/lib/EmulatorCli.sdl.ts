@@ -1,5 +1,8 @@
 // Gameboy Emulator - NodeJS EmulatorCli
 
+//import sdl from '@kmamal/sdl'
+//import { createCanvas, Canvas, ImageData, SKRSContext2D } from '@napi-rs/canvas';
+
 import { fetchRom, readRom } from './rom_reader';
 import { instructionsSet } from './cpu_instructions'
 import { fetchWasmModule, loadWasmExports, type WasmExports } from "./wasm_utils";
@@ -12,6 +15,11 @@ type ComputerRef = __Internref10;
 
 const SCREEN_WIDTH = 160;
 const SCREEN_HEIGHT = 144;
+
+
+//const { pixelWidth: width, pixelHeight: height } = window
+//const canvas = createCanvas(width, height)
+//const ctx = canvas.getContext('2d')
 
 
 
