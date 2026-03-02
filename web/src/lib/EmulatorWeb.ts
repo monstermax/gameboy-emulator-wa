@@ -163,6 +163,8 @@ export class EmulatorWeb {
             this.queueAudio();
         }
 
+        this.dumpState()
+
         if (!once) {
             this.animFrameId = requestAnimationFrame(this.loop);
         }
