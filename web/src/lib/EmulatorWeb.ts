@@ -2,7 +2,7 @@
 
 import { fetchRom } from "./rom_reader";
 import { getRomHeader } from "./rom_utils";
-import { instructionsSet } from './cpu_instructions';
+import { instructionsSet, type Instruction } from './cpu_instructions';
 import { fetchWasmModule, loadWasmExports, type WasmExports } from "./wasm_utils";
 import { asserts } from "./utils";
 import { toHex } from "./lib_numbers";
@@ -25,7 +25,9 @@ export type StateDump = {
     cycles: bigint;
     frames: bigint;
     PC: string;
-    currentInstruction: string | null;
+    currentInstruction: Instruction | null;
+    isCbPrefixed: boolean;
+    opcode: `0x${string}`;
 }
 
 
@@ -177,15 +179,33 @@ export class EmulatorWeb {
 
         const PC = Number(this.registers.PC);
 
-        const currentInstruction = (this.currentRomFile)
+        const currentInstructionCode = (this.currentRomFile)
             ? toHex(this.currentRomFile.at(PC) ?? 0, 4)
             : null;
+
+        const previousInstructionCode = (this.currentRomFile)
+            ? toHex(this.currentRomFile.at(PC-1) ?? 0, 4)
+            : null;
+
+
+        let currentInstruction: Instruction | null = null;
+        const opcode = toHex(Number(currentInstructionCode)) as keyof typeof instructionsSet['cbprefixed']
+        const isCbPrefixed = previousInstructionCode === '0xCB';
+
+        if (isCbPrefixed) {
+            currentInstruction = instructionsSet['cbprefixed'][opcode]
+
+        } else {
+            currentInstruction = instructionsSet['unprefixed'][opcode]
+        }
 
         return { 
             cycles: this.cycles,
             frames: this.frames,
             PC: toHex(PC),
             currentInstruction,
+            isCbPrefixed,
+            opcode,
          };
     }
 

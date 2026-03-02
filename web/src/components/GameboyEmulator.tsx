@@ -5,8 +5,9 @@ import { useEmulator } from '../hooks/useEmulator'
 import { GameboyScreen } from './GameboyScreen'
 
 import type { EmulatorWeb, StateDump } from '../lib/EmulatorWeb';
-import { sleep } from '../lib/utils';
+import { asserts, sleep } from '../lib/utils';
 import { toHex } from '../lib/lib_numbers';
+import type { Instruction, InstructionDebug } from '../lib/cpu_instructions';
 
 
 //const romFilename = "SuperMarioLand.World.Rev1.gb";
@@ -163,7 +164,7 @@ export const GameboyEmulator: React.FC = () => {
                             <button
                                 onClick={() => toggleShowDebugger()}
                                 disabled={!ready}
-                                className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/80 disabled:opacity-50 text-sm cursor-pointer"
+                                className="px-4 py-2 text-foreground rounded bg-yellow-950 hover:bg-yellow-900 disabled:opacity-50 text-sm cursor-pointer"
                             >
                                 Debug
                             </button>
@@ -227,11 +228,28 @@ export type DebuggerProps = {
 export const Debugger: React.FC<DebuggerProps> = (props) => {
     const { emulator, emulatorIsRunning } = props;
 
+    const [nextInstructions, setNextInstructions] = useState<InstructionDebug[]>([]);
+    const [previousInstructions, setPreviousInstructions] = useState<{ address: number, value: number }[]>([]);
+
     const instructionsSet = emulator.getInstructionsSet()
+
+    useEffect(() => {
+        if (!emulator.wasmExports) return;
+
+        const _show = () => {
+            const state = emulator.dumpState()
+            showStateDump(state);
+        }
+
+        const timer = setTimeout(_show, 10);
+        return () => clearTimeout(timer);
+    }, [emulator.wasmExports]);
+
 
     const showCurrentRom = () => {
         console.log('currentRomFile:', emulator.currentRomFile)
     }
+
 
     const handleStepCycle = () => {
         emulator.runEmulatorCycles(1);
@@ -240,6 +258,7 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
         showStateDump(state);
     }
 
+
     const handleStepFrame = () => {
         emulator.runEmulatorFrames(1);
 
@@ -247,51 +266,148 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
         showStateDump(state);
     }
 
+
     const showStateDump = (state: StateDump) => {
-        const opcode = toHex(Number(state.currentInstruction)) as keyof typeof instructionsSet['unprefixed']
-        const ir = opcode ? instructionsSet.unprefixed[opcode] : null;
-        console.log(state, ir)
+        if (!emulator.currentRomFile) return;
+
+        console.log(state)
 
         const PC = Number(state.PC)
 
-        const currentExecutionZone = emulator.currentRomFile?.subarray(PC - 10, PC + 20);
-        console.log('currentExecutionZone:', currentExecutionZone)
+        const currentExecutionZone = emulator.currentRomFile.subarray(PC - 5, PC + 20);
+        //console.log('currentExecutionZone:', currentExecutionZone)
+
+        let isCbPrefixed = state.isCbPrefixed;
+        const _nextInstructions: Instruction[] = [];
+        const _previousInstructions: { address: number, value: number }[] = [];
+
+
+        for (let address = PC - 1; address > PC - 5; address--) {
+            const opcode = currentExecutionZone.at(address - PC) ?? 0
+            _previousInstructions.push({ address, value: opcode })
+        }
+        _previousInstructions.reverse()
+
+
+        for (let address = PC; address < PC + 20; address++) {
+            const addressHex = toHex(address, 4);
+            const opcode = currentExecutionZone.at(address - PC) as number | undefined;
+            asserts(opcode !== undefined, `Missing opcode at address ${addressHex} (prefixed=${isCbPrefixed ? "Y" : "N"})`)
+
+            const opcodeHex = toHex(opcode) as keyof typeof instructionsSet['cbprefixed']
+
+            let currentInstruction: InstructionDebug | null = null;
+
+            if (isCbPrefixed) {
+                currentInstruction = { ...instructionsSet['cbprefixed'][opcodeHex] }
+
+            } else {
+                currentInstruction = { ...instructionsSet['unprefixed'][opcodeHex] }
+            }
+
+            if (!currentInstruction) {
+                throw new Error(`Missing currentInstruction at address ${addressHex} (opcode=${opcodeHex}  prefixed=${isCbPrefixed ? "Y" : "N"})`);
+            }
+
+            currentInstruction.address = address;
+            currentInstruction.opcode = opcodeHex;
+            currentInstruction.isCbPrefixed = isCbPrefixed;
+
+            const data = new Array<number>(currentInstruction.bytes-1).fill(0);
+
+            data.forEach((byte, idx) => {
+                address++;
+                data[idx] = currentExecutionZone.at(address - PC)?.valueOf() ?? -1
+            })
+
+            currentInstruction.data = data;
+
+            _nextInstructions.push(currentInstruction);
+
+            isCbPrefixed = false;
+
+            if (_nextInstructions.length >= 5) {
+                break;
+            }
+
+            if (!isCbPrefixed && opcodeHex === '0xCB') {
+                isCbPrefixed = true;
+                continue;
+            }
+        }
+
+        console.log('_previousInstructions:', _previousInstructions);
+        //console.log('nextInstructions:', _nextInstructions);
+        setPreviousInstructions(_previousInstructions)
+        setNextInstructions(_nextInstructions)
     }
+
 
     return (
         <>
-            <h3>
-                Debugger
-            </h3>
+            <div className="flex gap-2">
+                <h3 className="flex items-end">
+                    Debugger
+                </h3>
 
-            <div className="m-2 flex gap-2">
-                <button
-                    disabled={false}
-                    onClick={() => showCurrentRom()}
-                    className="bg-primary px-1 rounded"
-                >
-                    Show ROM
-                </button>
+                <div className="flex gap-2 items-end">
+                    <button
+                        disabled={false}
+                        onClick={() => showCurrentRom()}
+                        className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-blue-950 hover:bg-blue-900`}
+                    >
+                        Show ROM
+                    </button>
 
-                <button
-                    disabled={emulatorIsRunning}
-                    onClick={() => handleStepCycle()}
-                    className={`px-4 py-2 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
-                >
-                    Step cycle
-                </button>
+                    <button
+                        disabled={emulatorIsRunning}
+                        onClick={() => handleStepCycle()}
+                        className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
+                    >
+                        Step cycle
+                    </button>
 
-                <button
-                    disabled={emulatorIsRunning}
-                    onClick={() => handleStepFrame()}
-                    className={`px-4 py-2 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
-                >
-                    Step frame
-                </button>
-            </div>
+                    <button
+                        disabled={emulatorIsRunning}
+                        onClick={() => handleStepFrame()}
+                        className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
+                    >
+                        Step frame
+                    </button>
+                </div>
 
-            <div>
+                <div className="border border-amber-400 grow">
+                    {previousInstructions.map((instruction, idx) => {
+                        return (
+                            <div
+                                key={instruction.address}
+                                className={`px-1 text-sm grid grid-cols-4 ${idx === 0 ? "bg-background/10" : "bg-background"}`}
+                            >
+                                <div>{toHex(instruction.address ?? 0, 4)}</div>
+                                <div>{toHex(instruction.value)}</div>
+                                <div>-</div>
+                                <div>-</div>
+                            </div>
+                        );
+                    })}
 
+                    {nextInstructions.map((instruction, idx) => {
+                        const data = Array.from(instruction.data?.map(b => b.valueOf()) ?? []);
+                        const instructionData = data.map(val => toHex(val, 2));
+
+                        return (
+                            <div
+                                key={instruction.address}
+                                className={`px-1 text-sm grid grid-cols-4 ${idx === 0 ? "bg-background/10" : "bg-background"}`}
+                            >
+                                <div>{toHex(instruction.address ?? 0, 4)}</div>
+                                <div>{instruction.opcode}</div>
+                                <div>{instruction.mnemonic}</div>
+                                <div>{instructionData.join(' ')}</div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </>
     );

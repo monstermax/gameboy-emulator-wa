@@ -4,7 +4,7 @@
 //import { createCanvas, Canvas, ImageData, SKRSContext2D } from '@napi-rs/canvas';
 
 import { fetchRom, readRom } from './rom_reader';
-import { instructionsSet } from './cpu_instructions'
+import { Instruction, instructionsSet } from './cpu_instructions'
 import { fetchWasmModule, loadWasmExports, type WasmExports } from "./wasm_utils";
 import { asserts } from './utils';
 
@@ -18,7 +18,9 @@ export type StateDump = {
     cycles: bigint;
     frames: bigint;
     PC: string;
-    currentInstruction: string | null;
+    currentInstruction: Instruction | null;
+    isCbPrefixed: boolean;
+    opcode: `0x${string}`;
 }
 
 
@@ -168,15 +170,33 @@ export class EmulatorCli {
 
         const PC = Number(this.registers.PC);
 
-        const currentInstruction = (this.currentRomFile)
+        const currentInstructionCode = (this.currentRomFile)
             ? toHex(this.currentRomFile.at(PC) ?? 0, 4)
             : null;
+
+        const previousInstructionCode = (this.currentRomFile)
+            ? toHex(this.currentRomFile.at(PC-1) ?? 0, 4)
+            : null;
+
+
+        let currentInstruction: Instruction | null = null;
+        const opcode = toHex(Number(currentInstructionCode)) as keyof typeof instructionsSet['cbprefixed']
+        const isCbPrefixed = previousInstructionCode === '0xCB';
+
+        if (isCbPrefixed) {
+            currentInstruction = instructionsSet['cbprefixed'][opcode]
+
+        } else {
+            currentInstruction = instructionsSet['unprefixed'][opcode]
+        }
 
         return { 
             cycles: this.cycles,
             frames: this.frames,
             PC: toHex(PC),
             currentInstruction,
+            isCbPrefixed,
+            opcode,
          };
     }
 

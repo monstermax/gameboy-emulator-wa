@@ -24,6 +24,13 @@ export type Instruction = {
       }
 }
 
+export type InstructionDebug = Instruction & {
+  address?: number;
+  opcode?: string;
+  isCbPrefixed?: boolean;
+  data?: number[];
+}
+
 
 export type Operand = {
     name: string,
