@@ -5,6 +5,7 @@ import { useEmulator } from '../hooks/useEmulator'
 import { GameboyScreen } from './GameboyScreen'
 
 import type { EmulatorWeb } from '../lib/EmulatorWeb';
+import { sleep } from '../lib/utils';
 
 
 //const romFilename = "SuperMarioLand.World.Rev1.gb";
@@ -58,12 +59,18 @@ export const GameboyEmulator: React.FC = () => {
         return () => clearInterval(timer);
     }, [emulatorIsRunning])
 
-    const handleLoadGame = (filepath: string) => {
+    const handleLoadGame = async (filepath: string) => {
         console.log(`Loading game ${filepath}`)
         setSelectedGame(filepath);
         emulatorStop()
-        emulator.loadRom(filepath)
+        await sleep(100)
+        await emulator.loadRom(filepath)
         emulatorStart()
+    }
+
+    const handleReset = () => {
+        handleLoadGame(selectedGame);
+        // TODO: à remplacer par une vrai instruction que l'on envoie à WASM pour faire un reset propre de l'emulateur et des devices
     }
 
     const toggleShowDebugger = () => {
@@ -132,7 +139,7 @@ export const GameboyEmulator: React.FC = () => {
                         </button>
 
                         <button
-                            onClick={() => handleLoadGame(selectedGame)}
+                            onClick={() => handleReset()}
                             disabled={!ready}
                             className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/80 disabled:opacity-50 text-sm cursor-pointer"
                         >
