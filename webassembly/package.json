@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node tests",
+    "build": "npm run asbuild:release && cp -a build/* ../web/public/webassembly/",
+    "asbuild": "npm run asbuild:debug && npm run asbuild:release && cp -a build/* ../web/public/webassembly/",
     "asbuild:debug": "asc assembly/index.ts --transform json-as --target debug",
     "asbuild:release": "asc assembly/index.ts --transform json-as --target release",
-    "asbuild": "npm run asbuild:debug && npm run asbuild:release && cp -a build/* ../web/public/webassembly/",
     "start": "npx serve ."
   },
   "keywords": [],
