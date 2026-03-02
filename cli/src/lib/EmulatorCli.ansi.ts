@@ -6,9 +6,18 @@ import { fetchWasmModule, loadWasmExports, type WasmExports } from "./wasm_utils
 import { asserts } from './utils';
 
 import type { __Internref8 } from '../../../webassembly/build/release';
+import { toHex } from './lib_numbers';
 
 
 type ComputerRef = __Internref8;
+
+export type StateDump = {
+    cycles: bigint;
+    frames: bigint;
+    PC: string;
+    currentInstruction: string | null;
+}
+
 
 const SCREEN_WIDTH = 160;
 const SCREEN_HEIGHT = 144;
@@ -20,8 +29,13 @@ const FRAME_INTERVAL = 1000 / TARGET_FPS;
 export class EmulatorCli {
     wasmExports: WasmExports | null = null;
     computer: ComputerRef | null = null;
+    public currentRomFile: Buffer<ArrayBuffer> | null = null;
 
     private running: boolean = false;
+    public cycles: bigint = 0n;
+    public frames: bigint = 0n;
+    public registers: { PC: bigint } = { PC: 0n };
+
     private loopTimer: ReturnType<typeof setInterval> | null = null;
 
     // ANSI rendering: previous frame for diff-based updates
@@ -78,6 +92,8 @@ export class EmulatorCli {
         const romFileArr: Uint8Array = new Uint8Array(romFile);
         this.wasmExports.injectRom(this.computer, romFileArr);
 
+        this.currentRomFile = romFile;
+
         return romFile;
     }
 
@@ -118,13 +134,40 @@ export class EmulatorCli {
     }
 
 
-    private loop(): void {
+    private loop(time?: DOMHighResTimeStamp, once=false): void {
         if (!this.running) return;
 
         this.stepFrame();
         this.drawFrame();
         this.queueAudio();
         this.updateFps();
+
+        if (!once) {
+            //this.animFrameId = requestAnimationFrame(this.loop); // TODO
+        }
+    }
+
+
+    public dumpState(): StateDump {
+        asserts(this.wasmExports, "wasmExports required");
+        asserts(this.computer, "computer required");
+
+        this.cycles = this.wasmExports.getEmulatorState(this.computer, 'cycles');
+        this.frames = this.wasmExports.getEmulatorState(this.computer, 'frames');
+        this.registers.PC = this.wasmExports.getEmulatorState(this.computer, 'registers.PC');
+
+        const PC = Number(this.registers.PC);
+
+        const currentInstruction = (this.currentRomFile)
+            ? toHex(this.currentRomFile.at(PC) ?? 0, 4)
+            : null;
+
+        return { 
+            cycles: this.cycles,
+            frames: this.frames,
+            PC: toHex(PC),
+            currentInstruction,
+         };
     }
 
 
@@ -370,11 +413,11 @@ export class EmulatorCli {
     //  Legacy
     // =========================================================================
 
-    public runEmulatorCycles(): void {
+    public runEmulatorCycles(cyclesCount=1): void {
         asserts(this.wasmExports, "wasmExports required");
         asserts(this.computer, "computer required");
 
-        this.wasmExports.runCycles(this.computer, 1_000_000);
+        this.wasmExports.runCycles(this.computer, cyclesCount);
     }
 }
 

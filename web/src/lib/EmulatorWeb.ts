@@ -5,6 +5,7 @@ import { getRomHeader } from "./rom_utils";
 import { instructionsSet } from './cpu_instructions';
 import { fetchWasmModule, loadWasmExports, type WasmExports } from "./wasm_utils";
 import { asserts } from "./utils";
+import { toHex } from "./lib_numbers";
 
 import type { __Internref8 } from "../../../webassembly/build/release";
 
@@ -20,6 +21,14 @@ import type { __Internref8 } from "../../../webassembly/build/release";
 
 type ComputerRef = __Internref8;
 
+export type StateDump = {
+    cycles: bigint;
+    frames: bigint;
+    PC: string;
+    currentInstruction: string | null;
+}
+
+
 const SCREEN_WIDTH = 160;
 const SCREEN_HEIGHT = 144;
 
@@ -27,6 +36,7 @@ const SCREEN_HEIGHT = 144;
 export class EmulatorWeb {
     wasmExports: WasmExports | null = null;
     computer: ComputerRef | null = null;
+    public currentRomFile: Buffer<ArrayBuffer> | null = null;
 
     // Canvas rendering
     private canvas: HTMLCanvasElement | null = null;
@@ -36,6 +46,8 @@ export class EmulatorWeb {
     private running: boolean = false;
     public cycles: bigint = 0n;
     public frames: bigint = 0n;
+    public registers: { PC: bigint } = { PC: 0n };
+    public audioEnabled  = true;
 
 
     constructor() {}
@@ -57,6 +69,14 @@ export class EmulatorWeb {
     }
 
 
+    reset(): void {
+        asserts(this.wasmExports, "wasmExports required");
+        asserts(this.computer, "computer required");
+
+        this.wasmExports.resetEmulator(this.computer)
+    }
+
+
     /**
      * Load a ROM file into the emulator.
      * Can be called multiple times to switch ROMs.
@@ -72,6 +92,8 @@ export class EmulatorWeb {
 
         const romFileArr: Uint8Array = new Uint8Array(romFile);
         this.wasmExports.injectRom(this.computer, romFileArr);
+
+        this.currentRomFile = romFile;
 
         return romFile;
     }
@@ -94,6 +116,11 @@ export class EmulatorWeb {
 
         const json = JSON.stringify(instructionsSet);
         //this.wasmExports.injectInstructionsSet(this.computer, json); // DEPRECATED
+    }
+
+
+    public getInstructionsSet() {
+        return instructionsSet;
     }
 
 
@@ -124,20 +151,42 @@ export class EmulatorWeb {
     }
 
 
-    private loop = (): void => {
-        if (!this.running) return;
-        asserts(this.wasmExports, "wasmExports required");
-        asserts(this.computer, "computer required");
+    public loop = (time?: DOMHighResTimeStamp, once=false): void => {
+        if (!this.running && !once) return;
 
         this.stepFrame();
         this.drawFrame();
-        this.queueAudio();
 
-        this.animFrameId = requestAnimationFrame(this.loop);
+        if (this.audioEnabled) {
+            this.queueAudio();
+        }
+
+        if (!once) {
+            this.animFrameId = requestAnimationFrame(this.loop);
+        }
+    }
+
+
+    public dumpState(): StateDump {
+        asserts(this.wasmExports, "wasmExports required");
+        asserts(this.computer, "computer required");
 
         this.cycles = this.wasmExports.getEmulatorState(this.computer, 'cycles');
         this.frames = this.wasmExports.getEmulatorState(this.computer, 'frames');
-        //console.log({ cycles: this.cycles, frames: this.frames })
+        this.registers.PC = this.wasmExports.getEmulatorState(this.computer, 'registers.PC');
+
+        const PC = Number(this.registers.PC);
+
+        const currentInstruction = (this.currentRomFile)
+            ? toHex(this.currentRomFile.at(PC) ?? 0, 4)
+            : null;
+
+        return { 
+            cycles: this.cycles,
+            frames: this.frames,
+            PC: toHex(PC),
+            currentInstruction,
+         };
     }
 
 
@@ -272,6 +321,7 @@ export class EmulatorWeb {
         this.audioQueueSamples += sampleCount;
     }
 
+
     private destroyAudio(): void {
         if (this.audioScriptNode) {
             this.audioScriptNode.disconnect();
@@ -346,11 +396,24 @@ export class EmulatorWeb {
     //  Legacy (still works for testing without canvas)
     // =========================================================================
 
-    public runEmulatorCycles() {
+    public runEmulatorCycles(cyclesCount=1) {
         asserts(this.wasmExports, "wasmExports required");
         asserts(this.computer, "computer required");
 
-        this.wasmExports.runCycles(this.computer, 100_000)
+        this.wasmExports.runCycles(this.computer, cyclesCount)
+
+        this.drawFrame()
+    }
+
+    public runEmulatorFrames(framesCount=1) {
+        asserts(this.wasmExports, "wasmExports required");
+        asserts(this.computer, "computer required");
+
+        //this.wasmExports.runFrames(this.computer, framesCount)
+
+        for (let i=0; i<framesCount; i++) {
+            this.loop(undefined, true)
+        }
     }
 
 }

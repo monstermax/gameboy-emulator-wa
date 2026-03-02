@@ -18,7 +18,12 @@ export const SCREEN_HEIGHT: i32 = 144;
 
 export function runEmulator(): Computer {
     const computer = new Computer;
+    resetEmulator(computer);
+    return computer;
+}
 
+
+export function resetEmulator(computer: Computer): void {
     const cpu = computer.cpu;
     if (!cpu) throw new Error(`Cpu not found`);
 
@@ -28,8 +33,6 @@ export function runEmulator(): Computer {
     cpu.registers.BC = 0x0013;
     cpu.registers.DE = 0x00D8;
     cpu.registers.HL = 0x014D;
-
-    return computer;
 }
 
 
@@ -37,6 +40,13 @@ export function runCycles(computer: Computer, cycles: i32): void {
     if (!computer) throw new Error(`Computer not found`);
 
     computer.runCycles(cycles);
+}
+
+
+export function runFrames(computer: Computer, frames: i32): void {
+    if (!computer) throw new Error(`Computer not found`);
+
+    computer.runFrames(frames);
 }
 
 
@@ -64,6 +74,12 @@ export function getEmulatorState(computer: Computer, stateKey: string): i64 {
     if (stateKey === 'frames') {
         return computer.frames;
     }
+
+    if (stateKey === 'registers.PC') {
+        return cpu.registers.PC || 0;
+    }
+
+    throw new Error(`Key "${stateKey}" not found`);
 
     return 0;
 }

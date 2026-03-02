@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useEmulator } from '../hooks/useEmulator'
 import { GameboyScreen } from './GameboyScreen'
 
-import type { EmulatorWeb } from '../lib/EmulatorWeb';
+import type { EmulatorWeb, StateDump } from '../lib/EmulatorWeb';
 import { sleep } from '../lib/utils';
+import { toHex } from '../lib/lib_numbers';
 
 
 //const romFilename = "SuperMarioLand.World.Rev1.gb";
@@ -22,6 +23,7 @@ export const GameboyEmulator: React.FC = () => {
 
     const [selectedGame, setSelectedGame] = useState(romFilename);
     const [debuggerVisible, setDebuggerVisible] = useState(false);
+    const [audioEnabled, setAudioEnabled] = useState(true);
 
 
     useEffect(() => {
@@ -66,11 +68,16 @@ export const GameboyEmulator: React.FC = () => {
         await sleep(100)
         await emulator.loadRom(filepath)
         emulatorStart()
+        emulator.reset()
     }
 
     const handleReset = () => {
-        handleLoadGame(selectedGame);
-        // TODO: à remplacer par une vrai instruction que l'on envoie à WASM pour faire un reset propre de l'emulateur et des devices
+        emulator.reset()
+    }
+
+    const toggleDisableSound = () => {
+        emulator.audioEnabled = !emulator.audioEnabled;
+        setAudioEnabled(emulator.audioEnabled)
     }
 
     const toggleShowDebugger = () => {
@@ -91,13 +98,13 @@ export const GameboyEmulator: React.FC = () => {
                                 {Math.round(framesSpeed)} FPS
                             </div>
 
-                            <span onClick={() => toggleShowDebugger()} className="text-xs text-foreground/60">Running 🔴</span>
+                            <span className="text-xs text-foreground/60">Running 🔴</span>
                         </>
                     )}
 
                     {!emulatorIsRunning && (
                         <>
-                            <span onClick={() => toggleShowDebugger()} className="text-xs text-foreground/60">⚫</span>
+                            <span className="text-xs text-foreground/60">⚫</span>
                         </>
                     )}
                 </div>
@@ -105,46 +112,62 @@ export const GameboyEmulator: React.FC = () => {
                 {/* Écran */}
                 <div className="mb-2 p-1 flex-1 min-h-0">
                     <div className="h-full border-2 border-border rounded overflow-hidden">
-
-                        <div className={`size-full ${debuggerVisible ? "hidden" : ""}`}>
-                            <GameboyScreen canvasRef={canvasRef} />
-                        </div>
-
-                        <div className={`size-full ${debuggerVisible ? "" : "hidden"}`}>
-                            <Debugger emulator={emulator} />
-                        </div>
+                        <GameboyScreen canvasRef={canvasRef} debuggerVisible={debuggerVisible} />
                     </div>
                 </div>
 
                 {/* Contrôles */}
                 <div className="p-1 space-y-4 border">
-                    <div className="flex justify-center gap-2">
-                        <GameSelector
-                            handleLoadGame={handleLoadGame}
-                            selectedGame={selectedGame}
-                            disabled={!ready}
-                        />
+                    <div className="flex flex-col gap-2">
 
-                        <button
-                            onClick={() => emulatorIsRunning ? emulatorStop() : emulatorStart()}
-                            disabled={!ready}
-                            className={`px-4 py-2 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer
-                                ${emulatorIsRunning
-                                    ? "bg-red-950 hover:bg-red-900"
-                                    : "bg-green-950 hover:bg-green-900"
-                                }
-                            `}
-                        >
-                            {emulatorIsRunning ? "Stop" : "Start"}
-                        </button>
+                        <div className={`size-full ${debuggerVisible ? "" : "hidden"}`}>
+                            <Debugger emulator={emulator} emulatorIsRunning={emulatorIsRunning} />
+                        </div>
 
-                        <button
-                            onClick={() => handleReset()}
-                            disabled={!ready}
-                            className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/80 disabled:opacity-50 text-sm cursor-pointer"
-                        >
-                            Reset
-                        </button>
+                        <div className="flex justify-center gap-2">
+                            <GameSelector
+                                handleLoadGame={handleLoadGame}
+                                selectedGame={selectedGame}
+                                disabled={!ready}
+                            />
+
+                            <button
+                                onClick={() => emulatorIsRunning ? emulatorStop() : emulatorStart()}
+                                disabled={!ready}
+                                className={`px-4 py-2 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer
+                                    ${emulatorIsRunning
+                                        ? "bg-red-950 hover:bg-red-900"
+                                        : "bg-green-950 hover:bg-green-900"
+                                    }
+                                `}
+                            >
+                                {emulatorIsRunning ? "Stop" : "Start"}
+                            </button>
+
+                            <button
+                                onClick={() => handleReset()}
+                                disabled={!ready}
+                                className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/80 disabled:opacity-50 text-sm cursor-pointer"
+                            >
+                                Reset
+                            </button>
+
+                            <button
+                                onClick={() => toggleDisableSound()}
+                                disabled={!ready}
+                                className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/80 disabled:opacity-50 text-sm cursor-pointer"
+                            >
+                                {audioEnabled ? "Disable Sound" : "Enable Sound"}
+                            </button>
+
+                            <button
+                                onClick={() => toggleShowDebugger()}
+                                disabled={!ready}
+                                className="px-4 py-2 bg-muted text-foreground rounded hover:bg-muted/80 disabled:opacity-50 text-sm cursor-pointer"
+                            >
+                                Debug
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -198,15 +221,78 @@ const GameSelector: React.FC<GameSelectorProps> = (props) => {
 
 export type DebuggerProps = {
     emulator: EmulatorWeb;
+    emulatorIsRunning: boolean;
 }
 
 export const Debugger: React.FC<DebuggerProps> = (props) => {
-    const { emulator } = props;
-    
+    const { emulator, emulatorIsRunning } = props;
+
+    const instructionsSet = emulator.getInstructionsSet()
+
+    const showCurrentRom = () => {
+        console.log('currentRomFile:', emulator.currentRomFile)
+    }
+
+    const handleStepCycle = () => {
+        emulator.runEmulatorCycles(1);
+
+        const state = emulator.dumpState()
+        showStateDump(state);
+    }
+
+    const handleStepFrame = () => {
+        emulator.runEmulatorFrames(1);
+
+        const state = emulator.dumpState()
+        showStateDump(state);
+    }
+
+    const showStateDump = (state: StateDump) => {
+        const opcode = toHex(Number(state.currentInstruction)) as keyof typeof instructionsSet['unprefixed']
+        const ir = opcode ? instructionsSet.unprefixed[opcode] : null;
+        console.log(state, ir)
+
+        const PC = Number(state.PC)
+
+        const currentExecutionZone = emulator.currentRomFile?.subarray(PC - 10, PC + 20);
+        console.log('currentExecutionZone:', currentExecutionZone)
+    }
 
     return (
         <>
-            Debugger
+            <h3>
+                Debugger
+            </h3>
+
+            <div className="m-2 flex gap-2">
+                <button
+                    disabled={false}
+                    onClick={() => showCurrentRom()}
+                    className="bg-primary px-1 rounded"
+                >
+                    Show ROM
+                </button>
+
+                <button
+                    disabled={emulatorIsRunning}
+                    onClick={() => handleStepCycle()}
+                    className={`px-4 py-2 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
+                >
+                    Step cycle
+                </button>
+
+                <button
+                    disabled={emulatorIsRunning}
+                    onClick={() => handleStepFrame()}
+                    className={`px-4 py-2 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
+                >
+                    Step frame
+                </button>
+            </div>
+
+            <div>
+
+            </div>
         </>
     );
 }

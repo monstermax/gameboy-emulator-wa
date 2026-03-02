@@ -51,6 +51,16 @@ export class Computer {
     }
 
 
+    runFrames(frames: i32): void {
+        const cpu = this.cpu;
+        if (!cpu) throw new Error(`Cpu not found`);
+
+        for (let i: i32 = 0; i < frames; i++) {
+            this.runFrame();
+        }
+    }
+
+
     /**
      * Run until the PPU produces a complete frame (~70224 T-cycles).
      */

@@ -4,10 +4,11 @@ import { useEffect, useRef, type RefObject } from "react";
 
 type GameboyScreenProps = {
     canvasRef: RefObject<HTMLCanvasElement | null>;
+    debuggerVisible?: boolean;
     scale?: number;
 }
 
-export function GameboyScreen({ canvasRef, scale = 3 }: GameboyScreenProps) {
+export function GameboyScreen({ canvasRef, debuggerVisible, scale = 3 }: GameboyScreenProps) {
     const containerRef = useRef<HTMLDivElement>(null);
 
 
@@ -46,7 +47,7 @@ export function GameboyScreen({ canvasRef, scale = 3 }: GameboyScreenProps) {
         setTimeout(updateCanvasSize, 150);
 
         return () => window.removeEventListener('resize', updateCanvasSize);
-    }, [canvasRef]);
+    }, [canvasRef, debuggerVisible]);
 
 
     return (
