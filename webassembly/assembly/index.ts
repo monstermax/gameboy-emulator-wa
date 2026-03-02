@@ -1,12 +1,12 @@
 // Gameboy Emulator - WebAssembly Entrypoint
 
-import { JSON } from 'json-as';
+//import { JSON } from 'json-as';
 
 import { Computer } from "./model/Computer";
 import { createMbc } from "./model/Mbc";
 import { getRomHeader } from "./model/RomHeader";
 
-import { InstructionSet } from './types/cpu_instructions.types';
+//import { InstructionSet } from './types/cpu_instructions.types';
 
 
 // Gameboy Emulator
@@ -120,11 +120,11 @@ export function getAudioSampleCount(computer: Computer): i32 {
 }
 
 
-export function injectInstructionsSet(computer: Computer, json: string): void {
-    if (!computer) throw new Error(`Computer not found`);
-
-    computer.instructionsSet = JSON.parse<InstructionSet>(json);
-}
+//export function injectInstructionsSet(computer: Computer, json: string): void {
+//    if (!computer) throw new Error(`Computer not found`);
+//
+//    computer.instructionsSet = JSON.parse<InstructionSet>(json);
+//}
 
 
 /**

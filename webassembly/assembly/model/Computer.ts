@@ -8,7 +8,7 @@ import { Ppu } from "./Ppu";
 import { Apu } from "./Apu";
 import { Timer } from "./Timer";
 
-import { InstructionSet } from '../types/cpu_instructions.types';
+//import { InstructionSet } from '../types/cpu_instructions.types';
 
 
 export class Computer {
@@ -19,7 +19,7 @@ export class Computer {
     public ppu: Ppu | null = null;
     public apu: Apu | null = null;
     public timer: Timer | null = null;
-    public instructionsSet: InstructionSet | null;
+    //public instructionsSet: InstructionSet | null;
     public frames: i64 = 0;
 
     constructor() {
@@ -29,7 +29,7 @@ export class Computer {
         this.ppu = new Ppu(this);
         this.apu = new Apu(this);
         this.timer = new Timer(this);
-        this.instructionsSet = null;
+        //this.instructionsSet = null;
     }
 
 

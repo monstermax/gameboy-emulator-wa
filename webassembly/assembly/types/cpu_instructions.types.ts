@@ -1,5 +1,5 @@
 
-
+/*
 @json
 export class FlagEffect {
   Z!: string;
@@ -31,3 +31,4 @@ export class InstructionSet {
   cbprefixed!: Map<string, Instruction>;
 }
 
+*/
