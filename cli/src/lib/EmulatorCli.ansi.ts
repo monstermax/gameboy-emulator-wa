@@ -68,6 +68,14 @@ export class EmulatorCli {
     }
 
 
+    reset(): void {
+        asserts(this.wasmExports, "wasmExports required");
+        asserts(this.computer, "computer required");
+
+        this.wasmExports.resetEmulator(this.computer)
+    }
+
+
     private async mountWasm(): Promise<void> {
         const imports: { env: unknown } = { env: {} };
         const wasmModule = await fetchWasmModule();
