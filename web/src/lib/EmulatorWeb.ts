@@ -95,28 +95,6 @@ export class EmulatorWeb {
     }
 
 
-    // =========================================================================
-    //  Canvas / Rendering
-    // =========================================================================
-
-    /**
-     * Attach a <canvas> element for screen output.
-     * The canvas should be at least 160x144. CSS-scale for zoom.
-     */
-    public attachCanvas(canvas: HTMLCanvasElement): void {
-        this.canvas = canvas;
-        this.canvas.width = SCREEN_WIDTH;
-        this.canvas.height = SCREEN_HEIGHT;
-
-        this.ctx = canvas.getContext("2d");
-        if (!this.ctx) throw new Error("Could not get 2D context");
-
-        // Pre-allocate ImageData (reused every frame)
-        this.imageData = this.ctx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
-        this.imageData.data.fill(255);
-    }
-
-
     /**
      * Start the emulation loop (~60 FPS via requestAnimationFrame).
      */
@@ -136,6 +114,7 @@ export class EmulatorWeb {
         this.running = false;
         this.unbindKeyboard();
         this.destroyAudio();
+
         if (this.animFrameId) {
             cancelAnimationFrame(this.animFrameId);
             this.animFrameId = 0;
@@ -193,6 +172,28 @@ export class EmulatorWeb {
         }
 
         this.ctx.putImageData(this.imageData, 0, 0);
+    }
+
+
+    // =========================================================================
+    //  Canvas / Rendering
+    // =========================================================================
+
+    /**
+     * Attach a <canvas> element for screen output.
+     * The canvas should be at least 160x144. CSS-scale for zoom.
+     */
+    public attachCanvas(canvas: HTMLCanvasElement): void {
+        this.canvas = canvas;
+        this.canvas.width = SCREEN_WIDTH;
+        this.canvas.height = SCREEN_HEIGHT;
+
+        this.ctx = canvas.getContext("2d");
+        if (!this.ctx) throw new Error("Could not get 2D context");
+
+        // Pre-allocate ImageData (reused every frame)
+        this.imageData = this.ctx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
+        this.imageData.data.fill(255);
     }
 
 
@@ -349,4 +350,6 @@ export class EmulatorWeb {
 
         this.wasmExports.runCycles(this.computer, 100_000)
     }
+
 }
+

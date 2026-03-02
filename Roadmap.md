@@ -10,6 +10,13 @@
 - Timer (DIV/TIMA/TMA/TAC) : certains jeux en dépendent pour le timing
 
 
+**Next**
+- Cli
+- Gamepad
+- Debugguer (execution pas-à-pas) + Décompiler
+- Touchpad
+
+
 **🔧 Améliorations & bugs potentiels :**
 - **MBC3/MBC5** — nécessaires pour beaucoup de jeux (Pokémon, Zelda...)
 - **Cycle-accurate PPU** — le mode 3 est fixé à 172 cycles, en vrai il varie selon les sprites. Certains jeux ont des glitches visuels à cause de ça

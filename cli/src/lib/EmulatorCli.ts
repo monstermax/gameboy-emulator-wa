@@ -25,6 +25,8 @@ export class EmulatorCli {
     private imageData: ImageData | null = null;
     private animFrameId: number = 0;
     private running: boolean = false;
+    public cycles: bigint = 0n;
+    public frames: bigint = 0n;
 
 
     constructor() {}
@@ -85,34 +87,14 @@ export class EmulatorCli {
     }
 
 
-    // =========================================================================
-    //  Canvas / Rendering
-    // =========================================================================
-
-    /**
-     * Attach a <canvas> element for screen output.
-     * The canvas should be at least 160x144. CSS-scale for zoom.
-     */
-    public attachCanvas(canvas: HTMLCanvasElement): void {
-        this.canvas = canvas;
-        this.canvas.width = SCREEN_WIDTH;
-        this.canvas.height = SCREEN_HEIGHT;
-
-        this.ctx = canvas.getContext("2d");
-        if (!this.ctx) throw new Error("Could not get 2D context");
-
-        // Pre-allocate ImageData (reused every frame)
-        this.imageData = this.ctx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
-        this.imageData.data.fill(255);
-    }
-
-
     /**
      * Start the emulation loop (~60 FPS via requestAnimationFrame).
      */
     public start(): void {
         if (this.running) return;
         this.running = true;
+        //this.initAudio();
+        //this.bindKeyboard();
         this.loop();
     }
 
@@ -122,6 +104,9 @@ export class EmulatorCli {
      */
     public stop(): void {
         this.running = false;
+        //this.unbindKeyboard();
+        //this.destroyAudio();
+
         if (this.animFrameId) {
             cancelAnimationFrame(this.animFrameId);
             this.animFrameId = 0;
@@ -131,11 +116,18 @@ export class EmulatorCli {
 
     private loop = (): void => {
         if (!this.running) return;
+        asserts(this.wasmExports, "wasmExports required");
+        asserts(this.computer, "computer required");
 
         this.stepFrame();
         this.drawFrame();
+        //this.queueAudio();
 
         //this.animFrameId = requestAnimationFrame(this.loop); // TODO
+
+        this.cycles = this.wasmExports.getEmulatorState(this.computer, 'cycles');
+        this.frames = this.wasmExports.getEmulatorState(this.computer, 'frames');
+        //console.log({ cycles: this.cycles, frames: this.frames })
     }
 
 
@@ -176,9 +168,40 @@ export class EmulatorCli {
 
 
     // =========================================================================
-    //  Legacy (still works for testing without canvas)
+    //  Canvas / Rendering - NOT WORKING IN CLI MODE
     // =========================================================================
 
+    /**
+     * Attach a <canvas> element for screen output.
+     * The canvas should be at least 160x144. CSS-scale for zoom.
+     */
+    public attachCanvas(canvas: HTMLCanvasElement): void {
+        this.canvas = canvas;
+        this.canvas.width = SCREEN_WIDTH;
+        this.canvas.height = SCREEN_HEIGHT;
+
+        this.ctx = canvas.getContext("2d");
+        if (!this.ctx) throw new Error("Could not get 2D context");
+
+        // Pre-allocate ImageData (reused every frame)
+        this.imageData = this.ctx.createImageData(SCREEN_WIDTH, SCREEN_HEIGHT);
+        this.imageData.data.fill(255);
+    }
+
+
+    // =========================================================================
+    //  Audio
+    // =========================================================================
+
+
+    // =========================================================================
+    //  Joypad Input
+    // =========================================================================
+
+
+    // =========================================================================
+    //  Legacy (still works for testing without canvas)
+    // =========================================================================
 
 
     public runEmulatorCycles() {
@@ -189,3 +212,4 @@ export class EmulatorCli {
     }
 
 }
+
