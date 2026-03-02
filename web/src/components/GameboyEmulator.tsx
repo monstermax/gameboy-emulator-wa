@@ -1,5 +1,7 @@
 
 import { useEffect, useRef, useState } from 'react'
+import Gamepad, { type Axis, type Button } from 'react-gamepad'
+
 
 import { useEmulator } from '../hooks/useEmulator'
 import { GameboyScreen } from './GameboyScreen'
@@ -85,6 +87,58 @@ export const GameboyEmulator: React.FC = () => {
         setDebuggerVisible(b =>!b)
     }
 
+    const handleGamepadConnect = (gamepadIndex: number) => {
+        console.log('gamepad => onConnect', gamepadIndex)
+    }
+
+    const handleGamepadDisconnect = (gamepadIndex: number) => {
+        console.log('gamepad => onDisconnect', gamepadIndex)
+    }
+
+    const handleGamepadAxisChange = (axisName: Axis, value: number, previousValue: number) => {
+        console.log('gamepad => onAxisChange', axisName, value, previousValue)
+
+        const key = (axisName === "LeftStickX")
+            ? ((value || previousValue) === 1 ? "ArrowRight" : "ArrowLeft")
+            : ((value || previousValue) === 1 ? "ArrowUp" : "ArrowDown");
+
+        const evt = new KeyboardEvent('gamepad-button-change', { key });
+        console.log('evt:', evt, (value !== 0 ? "DOWN" : "UP"))
+
+        if (value !== 0) {
+            emulator.onKeyDown(evt)
+
+        } else {
+            emulator.onKeyUp(evt)
+        }
+    }
+
+    const handleGamepadButtonChange = (buttonName: Button, pressed: boolean) => {
+        console.log('gamepad => onButtonChange', buttonName, pressed)
+
+        const key = buttonName === "A"
+            ? "x" // A
+            : buttonName === "B"
+                ? "z" // B
+                : buttonName === "Back"
+                    ? "Shift" // Select
+                    : buttonName === "Start"
+                        ? "Enter" // Start
+                        : ""
+
+
+        const evt = new KeyboardEvent('gamepad-button-change', { key });
+        console.log('evt:', evt)
+
+        if (pressed) {
+            emulator.onKeyDown(evt)
+
+        } else {
+            emulator.onKeyUp(evt)
+        }
+    }
+
+
     return (
         <div className="h-full bg-background flex items-center justify-center p-2 border">
             <div className="h-full flex flex-col bg-card border NO-border-border rounded-lg">
@@ -120,6 +174,16 @@ export const GameboyEmulator: React.FC = () => {
                 {/* Contrôles */}
                 <div className="p-1 space-y-4 border">
                     <div className="flex flex-col gap-2">
+
+                        <Gamepad
+                            gamepadIndex={0}
+                            onConnect={handleGamepadConnect}
+                            onDisconnect={handleGamepadDisconnect}
+                            onAxisChange={handleGamepadAxisChange}
+                            onButtonChange={handleGamepadButtonChange}
+                        >
+                            <div>golo</div>
+                        </Gamepad>
 
                         <div className={`size-full ${debuggerVisible ? "" : "hidden"}`}>
                             <Debugger emulator={emulator} emulatorIsRunning={emulatorIsRunning} />
@@ -336,7 +400,7 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
             }
         }
 
-        console.log('_previousInstructions:', _previousInstructions);
+        //console.log('_previousInstructions:', _previousInstructions);
         //console.log('nextInstructions:', _nextInstructions);
         setPreviousInstructions(_previousInstructions)
         setNextInstructions(_nextInstructions)
