@@ -378,7 +378,7 @@ export class EmulatorWeb {
         "Enter":      0x08,  // Start
     };
 
-    private onKeyDown = (e: KeyboardEvent): void => {
+    public onKeyDown = (e: KeyboardEvent): void => {
         const bit = this.keyMap[e.key];
         if (bit !== undefined) {
             e.preventDefault();
@@ -387,7 +387,7 @@ export class EmulatorWeb {
         }
     }
 
-    private onKeyUp = (e: KeyboardEvent): void => {
+    public onKeyUp = (e: KeyboardEvent): void => {
         const bit = this.keyMap[e.key];
         if (bit !== undefined) {
             e.preventDefault();
