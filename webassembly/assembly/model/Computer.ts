@@ -6,6 +6,7 @@ import { Mbc } from "./Mbc";
 import { MemoryBus } from "./Memory";
 import { Ppu } from "./Ppu";
 import { Apu } from "./Apu";
+import { Timer } from "./Timer";
 
 import { InstructionSet } from '../types/cpu_instructions.types';
 
@@ -17,6 +18,7 @@ export class Computer {
     public ioManager: IoManager | null = null;
     public ppu: Ppu | null = null;
     public apu: Apu | null = null;
+    public timer: Timer | null = null;
     public instructionsSet: InstructionSet | null;
     public frames: i64 = 0;
 
@@ -26,6 +28,7 @@ export class Computer {
         this.ioManager = new IoManager(this);
         this.ppu = new Ppu(this);
         this.apu = new Apu(this);
+        this.timer = new Timer(this);
         this.instructionsSet = null;
     }
 
@@ -36,12 +39,14 @@ export class Computer {
 
         const ppu = this.ppu;
         const apu = this.apu;
+        const timer = this.timer;
 
         for (let i: i32 = 0; i < cycles; i++) {
             cpu.runCycle();
             const tc = cpu.lastCycles;
             if (ppu) ppu.tick(tc);
             if (apu) apu.tick(tc);
+            if (timer) timer.tick(tc);
         }
     }
 
@@ -57,6 +62,7 @@ export class Computer {
         if (!ppu) throw new Error(`Ppu not found`);
 
         const apu = this.apu;
+        const timer = this.timer;
 
         // Reset audio sample count for this frame
         if (apu) apu.sampleCount = 0;
@@ -69,6 +75,7 @@ export class Computer {
             const tc = cpu.lastCycles;
             ppu.tick(tc);
             if (apu) apu.tick(tc);
+            if (timer) timer.tick(tc);
             cyclesDone += tc;
         }
 

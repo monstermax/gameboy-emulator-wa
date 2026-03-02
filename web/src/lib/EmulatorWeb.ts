@@ -6,7 +6,7 @@ import { instructionsSet } from './cpu_instructions';
 import { fetchWasmModule, loadWasmExports, type WasmExports } from "./wasm_utils";
 import { asserts } from "./utils";
 
-import type { __Internref9 } from "../../../webassembly/build/release";
+import type { __Internref10 } from "../../../webassembly/build/release";
 
 
 /*
@@ -18,7 +18,7 @@ import type { __Internref9 } from "../../../webassembly/build/release";
 */
 
 
-type ComputerRef = __Internref9;
+type ComputerRef = __Internref10;
 
 const SCREEN_WIDTH = 160;
 const SCREEN_HEIGHT = 144;

@@ -118,7 +118,10 @@ export class IoManager {
                 break;
 
             case DIV:
+                // Writing any value resets DIV (and the internal system counter)
                 this.registers[DIV] = 0;
+                const timer = this.computer.timer;
+                if (timer) timer.resetDiv();
                 break;
 
             case STAT:
