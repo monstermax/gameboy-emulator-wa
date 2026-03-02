@@ -71,7 +71,7 @@ export class EmulatorCli {
         asserts(this.computer, "computer required");
 
         const json = JSON.stringify(instructionsSet);
-        this.wasmExports.injectInstructionsSet(this.computer, json);
+        //this.wasmExports.injectInstructionsSet(this.computer, json); // DEPRECATED
 
         //console.log('[CLI] InstructionsSet loaded');
     }
