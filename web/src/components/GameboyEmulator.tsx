@@ -182,7 +182,7 @@ export const GameboyEmulator: React.FC = () => {
                             onAxisChange={handleGamepadAxisChange}
                             onButtonChange={handleGamepadButtonChange}
                         >
-                            <div>golo</div>
+                            <div></div>
                         </Gamepad>
 
                         <div className={`size-full ${debuggerVisible ? "" : "hidden"}`}>
