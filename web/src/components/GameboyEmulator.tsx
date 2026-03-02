@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useEmulator } from '../hooks/useEmulator'
 import { GameboyScreen } from './GameboyScreen'
 
+import type { EmulatorWeb } from '../lib/EmulatorWeb';
+
 
 //const romFilename = "SuperMarioLand.World.Rev1.gb";
 const romFilename = "Tetris.World.RevA.gb";
@@ -18,6 +20,7 @@ export const GameboyEmulator: React.FC = () => {
     const [framesSpeed, setFramesSpeed] = useState(0);
 
     const [selectedGame, setSelectedGame] = useState(romFilename);
+    const [debuggerVisible, setDebuggerVisible] = useState(false);
 
 
     useEffect(() => {
@@ -63,6 +66,10 @@ export const GameboyEmulator: React.FC = () => {
         emulatorStart()
     }
 
+    const toggleShowDebugger = () => {
+        setDebuggerVisible(b =>!b)
+    }
+
     return (
         <div className="h-full bg-background flex items-center justify-center p-2 border">
             <div className="h-full flex flex-col bg-card border NO-border-border rounded-lg">
@@ -77,13 +84,13 @@ export const GameboyEmulator: React.FC = () => {
                                 {Math.round(framesSpeed)} FPS
                             </div>
 
-                            <span className="text-xs text-foreground/60">Running 🔴</span>
+                            <span onClick={() => toggleShowDebugger()} className="text-xs text-foreground/60">Running 🔴</span>
                         </>
                     )}
 
                     {!emulatorIsRunning && (
                         <>
-                            <span className="text-xs text-foreground/60">⚫</span>
+                            <span onClick={() => toggleShowDebugger()} className="text-xs text-foreground/60">⚫</span>
                         </>
                     )}
                 </div>
@@ -91,7 +98,14 @@ export const GameboyEmulator: React.FC = () => {
                 {/* Écran */}
                 <div className="mb-2 p-1 flex-1 min-h-0">
                     <div className="h-full border-2 border-border rounded overflow-hidden">
-                        <GameboyScreen canvasRef={canvasRef} />
+
+                        <div className={`size-full ${debuggerVisible ? "hidden" : ""}`}>
+                            <GameboyScreen canvasRef={canvasRef} />
+                        </div>
+
+                        <div className={`size-full ${debuggerVisible ? "" : "hidden"}`}>
+                            <Debugger emulator={emulator} />
+                        </div>
                     </div>
                 </div>
 
@@ -170,6 +184,23 @@ const GameSelector: React.FC<GameSelectorProps> = (props) => {
                 )}
             </select>
         </div>
+    );
+}
+
+
+
+export type DebuggerProps = {
+    emulator: EmulatorWeb;
+}
+
+export const Debugger: React.FC<DebuggerProps> = (props) => {
+    const { emulator } = props;
+    
+
+    return (
+        <>
+            Debugger
+        </>
     );
 }
 

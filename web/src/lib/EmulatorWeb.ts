@@ -61,7 +61,7 @@ export class EmulatorWeb {
      * Load a ROM file into the emulator.
      * Can be called multiple times to switch ROMs.
      */
-    async loadRom(romFilename: string): Promise<void> {
+    async loadRom(romFilename: string): Promise<Buffer<ArrayBuffer>> {
         asserts(this.wasmExports, "wasmExports required — call init() first");
         asserts(this.computer, "computer required — call init() first");
 
@@ -72,6 +72,8 @@ export class EmulatorWeb {
 
         const romFileArr: Uint8Array = new Uint8Array(romFile);
         this.wasmExports.injectRom(this.computer, romFileArr);
+
+        return romFile;
     }
 
 

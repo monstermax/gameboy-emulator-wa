@@ -33,3 +33,9 @@ npm create vite@latest . -- --template react-ts
 npm install --save-dev vite-plugin-node-polyfills
 ```
 
+
+## cli - SDL
+```bash
+npm install node-sdl @kmamal/sdl @napi-rs/canvas
+```
+

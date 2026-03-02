@@ -70,13 +70,15 @@ export class EmulatorCli {
     }
 
 
-    async loadRom(romFilename: string): Promise<void> {
+    async loadRom(romFilename: string): Promise<Buffer<ArrayBuffer>> {
         asserts(this.wasmExports, "wasmExports required");
         asserts(this.computer, "computer required");
 
         const romFile = await readRom(romFilename);
         const romFileArr: Uint8Array = new Uint8Array(romFile);
         this.wasmExports.injectRom(this.computer, romFileArr);
+
+        return romFile;
     }
 
 
