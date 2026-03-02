@@ -1,6 +1,6 @@
 
 
-class RomHeader {
+export class RomHeader {
     entrypoint: Uint8Array = new Uint8Array(0);
     nintendoLogo: Uint8Array = new Uint8Array(0);
     romTitle: Uint8Array = new Uint8Array(0);
