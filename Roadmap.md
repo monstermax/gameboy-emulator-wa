@@ -12,8 +12,8 @@
 
 **Next**
 - Cli
-- Gamepad
 - Debugguer (execution pas-à-pas) + Décompiler
+- Emulator rewind (go back a few seconds)
 - Touchpad
 
 
