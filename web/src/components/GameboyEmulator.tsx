@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Gamepad, { type Axis, type Button } from 'react-gamepad'
 
 
@@ -12,27 +12,33 @@ import { toHex } from '../lib/lib_numbers';
 import type { Instruction, InstructionDebug } from '../lib/cpu_instructions';
 
 
-//const romFilename = "SuperMarioLand.World.Rev1.gb";
-const romFilename = "Tetris.World.RevA.gb";
-//const romFilename = "Double.Dragon.II.USA.Europe.gb";
+//const romFilename = "gb/SuperMarioLand.World.Rev1.gb";
+const romFilename = "gb/Tetris.World.RevA.gb";
+//const romFilename = "gb/Double.Dragon.II.USA.Europe.gb";
 
 
 export const GameboyEmulator: React.FC = () => {
     const { emulator, emulatorStart, emulatorStop, isRunning: emulatorIsRunning, canvasRef, ready } = useEmulator(romFilename)
 
     const lastIterationInfosRef = useRef({ cycles: 0n, frames: 0n, date: Date.now() });
+    const cursorRef = useRef<HTMLDivElement>(null);
+
     const [cyclesSpeed, setCyclesSpeed] = useState(0);
     const [framesSpeed, setFramesSpeed] = useState(0);
 
     const [selectedGame, setSelectedGame] = useState(romFilename);
     const [debuggerVisible, setDebuggerVisible] = useState(false);
     const [audioEnabled, setAudioEnabled] = useState(true);
+    const [audioVolume, setAudioVolume] = useState(100);
+    const [audioVolumeSelectorVisible, setAudioVolumeSelectorVisible] = useState(false);
 
 
     useEffect(() => {
         if (!ready) return;
         console.log('[WEB] Emulator ready, rendering started');
+        handleSetAudioVolume(100)
     }, [ready])
+
 
     useEffect(() => {
         //if (!emulatorIsRunning) return;
@@ -64,6 +70,7 @@ export const GameboyEmulator: React.FC = () => {
         return () => clearInterval(timer);
     }, [emulatorIsRunning])
 
+
     const handleLoadGame = async (filepath: string) => {
         console.log(`Loading game ${filepath}`)
         setSelectedGame(filepath);
@@ -74,17 +81,60 @@ export const GameboyEmulator: React.FC = () => {
         emulator.reset()
     }
 
+
     const handleReset = () => {
         emulator.reset()
     }
+
 
     const toggleDisableSound = () => {
         emulator.audioEnabled = !emulator.audioEnabled;
         setAudioEnabled(emulator.audioEnabled)
     }
 
+    const handleSetAudioVolume = (volume: number) => {
+        console.log('handleSetAudioVolume:', volume)
+        setAudioVolume(volume)
+        emulator.setAudioVolume(volume)
+
+        if (cursorRef.current) {
+            // Mettre à jour la position du curseur
+            cursorRef.current.style.top = `${100 - volume}%`;
+        }
+    }
+
+    const handleCursorMouseDown = useCallback((event: React.MouseEvent<Element, MouseEvent>) => {
+        event.preventDefault();
+    }, []);
+
+    const handleCursorMouseMove = useCallback((event: React.MouseEvent<Element, MouseEvent>) => {
+        if (event.buttons === 1) {
+            const div = event.currentTarget as HTMLDivElement;
+
+            //const container = div.parentElement?.parentElement;
+            const container = cursorRef.current?.parentElement;
+            if (!container) return;
+
+            const rect = container.getBoundingClientRect();
+            const padding = 4; // py-1 = 4px
+            const availableHeight = rect.height - (padding * 2);
+
+            let y = event.clientY - rect.top - padding;
+            y = Math.max(0, Math.min(availableHeight, y));
+
+            // Calculer le pourcentage (inversé car top=0% = volume max)
+            let percentage = ((availableHeight - y) / availableHeight) * 100;
+            console.log({ percentage })
+
+            percentage = Math.max(0, Math.min(100, percentage));
+
+            // Mettre à jour le volume
+            handleSetAudioVolume(Math.round(percentage));
+        }
+    }, [])
+
     const toggleShowDebugger = () => {
-        setDebuggerVisible(b =>!b)
+        setDebuggerVisible(b => !b)
     }
 
     const handleGamepadConnect = (gamepadIndex: number) => {
@@ -232,6 +282,33 @@ export const GameboyEmulator: React.FC = () => {
                             >
                                 Debug
                             </button>
+
+                            <div className="relative select-none">
+                                <div className={`absolute w-8 h-20 bottom-10 -right-0.5 bg-background border rounded ${audioVolumeSelectorVisible ? "" : "hidden"}`}>
+                                    <div className="size-full cursor-pointer py-1">
+                                        <div
+                                            onMouseDown={handleCursorMouseDown}
+                                            onMouseMove={handleCursorMouseMove}
+                                            onMouseLeave={() => { }}
+                                            className="size-full relative"
+                                        >
+                                            {/* La barre verticale doit aussi tenir compte du padding */}
+                                            <div className="absolute left-1/2 -translate-x-1/2 h-full w-[3px] bg-neutral-600 rounded my-1 -translate-y-1" />
+
+                                            {/* Cursor - position relative au container avec padding */}
+                                            <div
+                                                ref={cursorRef}
+                                                className="absolute left-1/2 -translate-x-1/2 size-3 rounded-full bg-neutral-300 -translate-y-1/2"
+                                                style={{ top: `calc(${100 - audioVolume}% + 4px)` }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button className="p-2 select-none cursor-pointer" onClick={() => setAudioVolumeSelectorVisible(b => !b)}>
+                                    {audioVolume === 0 ? "🔇" : audioVolume < 50 ? "🔉" : "🔊"}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -275,7 +352,7 @@ const GameSelector: React.FC<GameSelectorProps> = (props) => {
             >
                 <option value="">Choose a game...</option>
                 {gamesList.map(game =>
-                    <option key={game} value={game}>{game}</option>
+                    <option key={game} value={game}>{getGameName(game)}</option>
                 )}
             </select>
         </div>
@@ -377,7 +454,7 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
             currentInstruction.opcode = opcodeHex;
             currentInstruction.isCbPrefixed = isCbPrefixed;
 
-            const data = new Array<number>(currentInstruction.bytes-1).fill(0);
+            const data = new Array<number>(currentInstruction.bytes - 1).fill(0);
 
             data.forEach((byte, idx) => {
                 address++;
@@ -475,5 +552,18 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
             </div>
         </>
     );
+}
+
+
+
+function getGameName(filepath: string): string {
+    const parts = filepath.split('/')
+    const filename = parts.at(-1) ?? '';
+
+    const parts2 = filename.split('.')
+    parts2.pop();
+
+    const gameName = parts2.join('.');
+    return gameName
 }
 

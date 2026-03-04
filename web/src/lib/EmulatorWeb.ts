@@ -279,9 +279,12 @@ export class EmulatorWeb {
     private audioQueue: Float32Array[] = [];
     private audioQueueSamples: number = 0;
     private readonly AUDIO_BUFFER_LIMIT = 8820; // ~200ms at 44100Hz
+    private gainNode: GainNode | null = null;
 
     private initAudio(): void {
         this.audioCtx = new AudioContext({ sampleRate: 44100 });
+        this.gainNode = this.audioCtx.createGain()
+
         // ScriptProcessorNode: 2048 frame buffer, 0 inputs, 2 outputs (stereo)
         this.audioScriptNode = this.audioCtx.createScriptProcessor(2048, 0, 2);
 
@@ -321,7 +324,25 @@ export class EmulatorWeb {
             }
         };
 
-        this.audioScriptNode.connect(this.audioCtx.destination);
+        //this.audioScriptNode.connect(this.audioCtx.destination);
+
+        this.audioScriptNode.connect(this.gainNode);
+        this.gainNode.connect(this.audioCtx.destination);
+
+        //this.gainNode.gain.setValueAtTime(1, this.audioCtx.currentTime);
+    }
+
+    public setAudioVolume(volume: number) {
+        if (!this.audioCtx || !this.gainNode) return;
+
+        //if (volume > 1) {
+            volume = volume / 100;
+        //}
+
+        volume = Math.max(0, volume)
+        volume = Math.min(1, volume)
+
+        this.gainNode.gain.setValueAtTime(volume, this.audioCtx.currentTime);
     }
 
     private queueAudio(): void {
