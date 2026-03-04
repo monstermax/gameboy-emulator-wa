@@ -27,6 +27,8 @@ const ROWS = SCREEN_HEIGHT / 2; // 72 rows of half-block pairs
 const TARGET_FPS = 60;
 const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
+const SPEED_STEPS = [0.25, 0.5, 1, 2, 4, 8];
+
 
 export class EmulatorCli {
     wasmExports: WasmExports | null = null;
@@ -50,6 +52,10 @@ export class EmulatorCli {
     private frameCount: number = 0;
     private lastFpsTime: number = 0;
     private currentFps: number = 0;
+
+    // Speed control
+    private speed: number = 1.0;
+    private speedAccumulator: number = 0;
 
 
     constructor() {
@@ -109,6 +115,53 @@ export class EmulatorCli {
 
 
     // =========================================================================
+    //  Speed Control
+    // =========================================================================
+
+    /**
+     * Set emulation speed multiplier.
+     * 1.0 = normal (59.73 Hz), 2.0 = double, 0.5 = half, etc.
+     */
+    public setSpeed(speed: number): void {
+        this.speed = Math.max(0.25, Math.min(8, speed));
+        this.speedAccumulator = 0;
+    }
+
+    public getSpeed(): number {
+        return this.speed;
+    }
+
+    private speedUp(): void {
+        const idx = SPEED_STEPS.indexOf(this.speed);
+        if (idx >= 0 && idx < SPEED_STEPS.length - 1) {
+            this.speed = SPEED_STEPS[idx + 1] ?? 1;
+
+        } else if (idx === -1) {
+            const next = SPEED_STEPS.find(s => s > this.speed);
+            if (next) this.speed = next;
+        }
+        this.speedAccumulator = 0;
+    }
+
+    private speedDown(): void {
+        const idx = SPEED_STEPS.indexOf(this.speed);
+        if (idx > 0) {
+            this.speed = SPEED_STEPS[idx - 1] ?? 1;
+
+        } else if (idx === -1) {
+            const prev = [...SPEED_STEPS].reverse().find(s => s < this.speed);
+            if (prev) this.speed = prev;
+        }
+        this.speedAccumulator = 0;
+    }
+
+    private speedReset(): void {
+        this.speed = 1.0;
+        this.speedAccumulator = 0;
+    }
+
+
+    // =========================================================================
     //  Start / Stop
     // =========================================================================
 
@@ -147,9 +200,25 @@ export class EmulatorCli {
     private loop(time?: DOMHighResTimeStamp, once=false): void {
         if (!this.running) return;
 
-        this.stepFrame();
-        this.drawFrame();
-        this.queueAudio();
+        // Speed control: accumulate fractional frames
+        this.speedAccumulator += this.speed;
+        const framesToRun = Math.floor(this.speedAccumulator);
+        this.speedAccumulator -= framesToRun;
+
+        for (let i = 0; i < framesToRun; i++) {
+            this.stepFrame();
+
+            // Only queue audio on the last sub-frame (avoids buffer overflow at turbo)
+            if (i === framesToRun - 1) {
+                this.queueAudio();
+            }
+        }
+
+        // Only draw once per tick (even at high speed)
+        if (framesToRun > 0) {
+            this.drawFrame();
+        }
+
         this.updateFps();
 
         if (!once) {
@@ -259,9 +328,10 @@ export class EmulatorCli {
             this.frameCount = 0;
             this.lastFpsTime = now;
 
-            // Draw FPS in top-right corner (outside the game area)
-            const fpsStr = `${this.currentFps} FPS`;
-            process.stdout.write(`\x1b[1;${SCREEN_WIDTH + 2}H\x1b[0;33m${fpsStr}\x1b[0m`);
+            // Draw FPS + speed in top-right corner (outside the game area)
+            const speedStr = this.speed === 1 ? "" : ` x${this.speed}`;
+            const fpsStr = `${this.currentFps} FPS${speedStr}`;
+            process.stdout.write(`\x1b[1;${SCREEN_WIDTH + 2}H\x1b[0;33m${fpsStr}   \x1b[0m`);
         }
     }
 
@@ -269,10 +339,6 @@ export class EmulatorCli {
     // =========================================================================
     //  Audio (PCM pipe to system audio player)
     // =========================================================================
-
-    //  Pipes raw PCM float32 samples to aplay/sox/ffplay via child_process.
-    //  Auto-detects which player is available.
-    //  If none found, audio is silently disabled.
 
     private audioProcess: import('child_process').ChildProcess | null = null;
     private audioEnabled: boolean = false;
@@ -329,6 +395,7 @@ export class EmulatorCli {
 
         try {
             this.audioProcess.stdin.write(nodeBuffer);
+
         } catch {
             // Pipe broken, disable audio
             this.audioEnabled = false;
@@ -387,6 +454,11 @@ export class EmulatorCli {
             this.stop();
             process.exit(0);
         }
+
+        // Speed controls: + / - / 0
+        if (key === "+" || key === "=") { this.speedUp(); return; }
+        if (key === "-" || key === "_") { this.speedDown(); return; }
+        if (key === "0")               { this.speedReset(); return; }
 
         const bit = this.keyMap[key];
         if (bit === undefined) return;
@@ -456,3 +528,4 @@ export class EmulatorCli {
 function shadeToAnsi(shade: number): number {
     return 232 + Math.floor((shade / 255) * 23);
 }
+

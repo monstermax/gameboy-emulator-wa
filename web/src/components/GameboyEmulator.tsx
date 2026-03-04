@@ -30,6 +30,7 @@ export const GameboyEmulator: React.FC = () => {
     const [debuggerVisible, setDebuggerVisible] = useState(false);
     const [audioEnabled, setAudioEnabled] = useState(true);
     const [audioVolume, setAudioVolume] = useState(100);
+    const [speed, setSpeed] = useState(1);
     const [audioVolumeSelectorVisible, setAudioVolumeSelectorVisible] = useState(false);
 
 
@@ -37,7 +38,14 @@ export const GameboyEmulator: React.FC = () => {
         if (!ready) return;
         console.log('[WEB] Emulator ready, rendering started');
         handleSetAudioVolume(100)
+        //emulator.setSpeed(1)
     }, [ready])
+
+
+    useEffect(() => {
+        if (speed <= 0 || speed > 10) return;
+        emulator.setSpeed(speed)
+    }, [speed])
 
 
     useEffect(() => {
@@ -92,8 +100,16 @@ export const GameboyEmulator: React.FC = () => {
         setAudioEnabled(emulator.audioEnabled)
     }
 
+    const handleSetSpeed = (speed: number) => {
+        if (!emulator) return;
+
+        console.log('handleSetSpeed:', speed)
+        setSpeed(speed)
+        //emulator.setSpeed(speed)
+    }
+
+
     const handleSetAudioVolume = (volume: number) => {
-        console.log('handleSetAudioVolume:', volume)
         setAudioVolume(volume)
         emulator.setAudioVolume(volume)
 
@@ -236,7 +252,7 @@ export const GameboyEmulator: React.FC = () => {
                         </Gamepad>
 
                         <div className={`size-full ${debuggerVisible ? "" : "hidden"}`}>
-                            <Debugger emulator={emulator} emulatorIsRunning={emulatorIsRunning} />
+                            <Debugger emulator={emulator} emulatorIsRunning={emulatorIsRunning} handleSetSpeed={handleSetSpeed} />
                         </div>
 
                         <div className="flex justify-center gap-2">
@@ -364,10 +380,11 @@ const GameSelector: React.FC<GameSelectorProps> = (props) => {
 export type DebuggerProps = {
     emulator: EmulatorWeb;
     emulatorIsRunning: boolean;
+    handleSetSpeed: (speed: number) => void;
 }
 
 export const Debugger: React.FC<DebuggerProps> = (props) => {
-    const { emulator, emulatorIsRunning } = props;
+    const { emulator, emulatorIsRunning, handleSetSpeed } = props;
 
     const [nextInstructions, setNextInstructions] = useState<InstructionDebug[]>([]);
     const [previousInstructions, setPreviousInstructions] = useState<{ address: number, value: number }[]>([]);
@@ -487,35 +504,72 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
     return (
         <>
             <div className="flex gap-2">
-                <h3 className="flex items-end">
-                    Debugger
-                </h3>
+                <div className="flex flex-col gap-2">
+                    <h3 className="flex">
+                        Debugger
+                    </h3>
 
-                <div className="flex gap-2 items-end">
-                    <button
-                        disabled={false}
-                        onClick={() => showCurrentRom()}
-                        className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-blue-950 hover:bg-blue-900`}
-                    >
-                        Show ROM
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            disabled={false}
+                            onClick={() => showCurrentRom()}
+                            className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-blue-950 hover:bg-blue-900`}
+                        >
+                            Show ROM
+                        </button>
 
-                    <button
-                        disabled={emulatorIsRunning}
-                        onClick={() => handleStepCycle()}
-                        className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
-                    >
-                        Step cycle
-                    </button>
+                        <button
+                            disabled={emulatorIsRunning}
+                            onClick={() => handleStepCycle()}
+                            className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
+                        >
+                            Step cycle
+                        </button>
 
-                    <button
-                        disabled={emulatorIsRunning}
-                        onClick={() => handleStepFrame()}
-                        className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
-                    >
-                        Step frame
-                    </button>
+                        <button
+                            disabled={emulatorIsRunning}
+                            onClick={() => handleStepFrame()}
+                            className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
+                        >
+                            Step frame
+                        </button>
+                    </div>
+
+                    <div className="flex gap-1">
+                        <button
+                            disabled={false}
+                            onClick={() => handleSetSpeed(0.5)}
+                            className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
+                        >
+                            0.5x
+                        </button>
+
+                        <button
+                            disabled={false}
+                            onClick={() => handleSetSpeed(1)}
+                            className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
+                        >
+                            1x
+                        </button>
+
+                        <button
+                            disabled={false}
+                            onClick={() => handleSetSpeed(2)}
+                            className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
+                        >
+                            2x
+                        </button>
+
+                        <button
+                            disabled={false}
+                            onClick={() => handleSetSpeed(5)}
+                            className={`px-4 py-1 text-foreground rounded disabled:opacity-50 text-sm cursor-pointer bg-yellow-950 hover:bg-yellow-900`}
+                        >
+                            5x
+                        </button>
+                    </div>
                 </div>
+
 
                 <div className="border border-amber-400 grow">
                     {previousInstructions.map((instruction, idx) => {

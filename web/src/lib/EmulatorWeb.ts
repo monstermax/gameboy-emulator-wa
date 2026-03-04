@@ -16,6 +16,9 @@ import type { __Internref8 } from "../../../webassembly/build/release";
  - B      = "x"
  - Select = "Shift"
  - Start  = "Enter"
+ - Speed up   = "+"
+ - Speed down = "-"
+ - Speed reset = Ctrl+0
 */
 
 
@@ -34,6 +37,8 @@ export type StateDump = {
 const SCREEN_WIDTH = 160;
 const SCREEN_HEIGHT = 144;
 
+const SPEED_STEPS = [0.25, 0.5, 1, 2, 4, 8];
+
 
 export class EmulatorWeb {
     wasmExports: WasmExports | null = null;
@@ -50,6 +55,10 @@ export class EmulatorWeb {
     public frames: bigint = 0n;
     public registers: { PC: bigint } = { PC: 0n };
     public audioEnabled  = true;
+
+    // Speed control
+    private speed: number = 1.0;
+    private speedAccumulator: number = 0;
 
 
     constructor() {}
@@ -126,9 +135,52 @@ export class EmulatorWeb {
     }
 
 
-    /**
-     * Start the emulation loop (~60 FPS via requestAnimationFrame).
-     */
+    // =========================================================================
+    //  Speed Control
+    // =========================================================================
+
+    public setSpeed(speed: number): void {
+        console.log('new speed:', speed)
+        this.speed = Math.max(0.25, Math.min(8, speed));
+        this.speedAccumulator = 0;
+    }
+
+    public getSpeed(): number {
+        return this.speed;
+    }
+
+    private speedUp(): void {
+        const idx = SPEED_STEPS.indexOf(this.speed);
+        if (idx >= 0 && idx < SPEED_STEPS.length - 1) {
+            this.speed = SPEED_STEPS[idx + 1];
+        } else if (idx === -1) {
+            const next = SPEED_STEPS.find(s => s > this.speed);
+            if (next) this.speed = next;
+        }
+        this.speedAccumulator = 0;
+    }
+
+    private speedDown(): void {
+        const idx = SPEED_STEPS.indexOf(this.speed);
+        if (idx > 0) {
+            this.speed = SPEED_STEPS[idx - 1];
+        } else if (idx === -1) {
+            const prev = [...SPEED_STEPS].reverse().find(s => s < this.speed);
+            if (prev) this.speed = prev;
+        }
+        this.speedAccumulator = 0;
+    }
+
+    private speedReset(): void {
+        this.speed = 1.0;
+        this.speedAccumulator = 0;
+    }
+
+
+    // =========================================================================
+    //  Start / Stop / Loop
+    // =========================================================================
+
     public start(): void {
         if (this.running) return;
         this.running = true;
@@ -153,14 +205,28 @@ export class EmulatorWeb {
     }
 
 
+    /**
+     * Start the emulation loop (~60 FPS via requestAnimationFrame).
+     */
     public loop = (time?: DOMHighResTimeStamp, once=false): void => {
         if (!this.running && !once) return;
 
-        this.stepFrame();
-        this.drawFrame();
+        // Speed control: accumulate fractional frames
+        this.speedAccumulator += this.speed;
+        const framesToRun = Math.floor(this.speedAccumulator);
+        this.speedAccumulator -= framesToRun;
 
-        if (this.audioEnabled) {
-            this.queueAudio();
+        for (let i = 0; i < framesToRun; i++) {
+            this.stepFrame();
+        }
+
+        // Only draw + audio once per rAF tick (even at high speed)
+        if (framesToRun > 0) {
+            this.drawFrame();
+
+            if (this.audioEnabled) {
+                this.queueAudio();
+            }
         }
 
         this.dumpState()
@@ -324,21 +390,14 @@ export class EmulatorWeb {
             }
         };
 
-        //this.audioScriptNode.connect(this.audioCtx.destination);
-
         this.audioScriptNode.connect(this.gainNode);
         this.gainNode.connect(this.audioCtx.destination);
-
-        //this.gainNode.gain.setValueAtTime(1, this.audioCtx.currentTime);
     }
 
     public setAudioVolume(volume: number) {
         if (!this.audioCtx || !this.gainNode) return;
 
-        //if (volume > 1) {
-            volume = volume / 100;
-        //}
-
+        volume = volume / 100;
         volume = Math.max(0, volume)
         volume = Math.min(1, volume)
 
@@ -348,7 +407,6 @@ export class EmulatorWeb {
     private queueAudio(): void {
         if (!this.audioCtx || !this.wasmExports || !this.computer) return;
 
-        // Resume context if suspended (browsers require user gesture)
         if (this.audioCtx.state === "suspended") {
             this.audioCtx.resume();
         }
@@ -356,7 +414,6 @@ export class EmulatorWeb {
         const sampleCount = this.wasmExports.getAudioSampleCount(this.computer);
         if (sampleCount <= 0) return;
 
-        // Drop audio if queue is too far ahead (avoid growing latency)
         if (this.audioQueueSamples > this.AUDIO_BUFFER_LIMIT) return;
 
         const buffer: Float32Array = this.wasmExports.getAudioBuffer(this.computer);
@@ -407,7 +464,13 @@ export class EmulatorWeb {
             e.preventDefault();
             this.joypadState |= bit;
             this.sendJoypad();
+            return;
         }
+
+        // Speed controls
+        if (e.key === "+" || e.key === "=") { this.speedUp(); return; }
+        if (e.key === "-" || e.key === "_") { this.speedDown(); return; }
+        if (e.key === "0" && e.ctrlKey)     { this.speedReset(); return; }
     }
 
     public onKeyUp = (e: KeyboardEvent): void => {
@@ -436,7 +499,7 @@ export class EmulatorWeb {
 
 
     // =========================================================================
-    //  Legacy (still works for testing without canvas)
+    //  Legacy
     // =========================================================================
 
     public runEmulatorCycles(cyclesCount=1) {
@@ -452,12 +515,9 @@ export class EmulatorWeb {
         asserts(this.wasmExports, "wasmExports required");
         asserts(this.computer, "computer required");
 
-        //this.wasmExports.runFrames(this.computer, framesCount)
-
         for (let i=0; i<framesCount; i++) {
             this.loop(undefined, true)
         }
     }
 
 }
-
