@@ -29,8 +29,10 @@ export type StateDump = {
     frames: bigint;
     registers: RegistersHex;
     currentInstruction: Instruction | null;
+    nextInstructions: InstructionDebug[];
     isCbPrefixed: boolean;
     opcode: `0x${string}`;
+    stack: { address: string, value: string }[];
 }
 
 
@@ -201,6 +203,28 @@ export class EmulatorWeb {
     }
 
 
+    public readStack(maxEntries: number = 32): { address: string, value: string }[] {
+        asserts(this.wasmExports, "wasmExports required");
+        asserts(this.computer, "computer required");
+
+        const raw: Uint8Array = this.wasmExports.readStack(this.computer, maxEntries);
+
+        if (raw.length < 2) return [];
+
+        const entries: { address: string, value: string }[] = [];
+
+        for (let i = 2; i < raw.length; i += 3) {
+            const addr = raw[i] | (raw[i + 1] << 8);
+            const val = raw[i + 2];
+            entries.push({
+                address: toHex(addr, 4),
+                value: toHex(val, 2),
+            });
+        }
+
+        return entries;
+    }
+
 
     // =========================================================================
     //  Speed Control
@@ -343,6 +367,9 @@ export class EmulatorWeb {
             currentInstruction = instructionsSet['unprefixed'][opcode]
         }
 
+        const nextInstructions = this.readNextInstructions(10);
+        const stack = this.readStack(16);
+
         return {
             cycles: this.cycles,
             frames: this.frames,
@@ -360,8 +387,10 @@ export class EmulatorWeb {
 
             },
             currentInstruction,
+            nextInstructions,
             isCbPrefixed,
             opcode,
+            stack,
         };
     }
 

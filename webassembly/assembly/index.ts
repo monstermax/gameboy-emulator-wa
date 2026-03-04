@@ -276,6 +276,7 @@ export function readNextInstructions(computer: Computer, count: i32): Uint8Array
     return result;
 }
 
+
 function getInstructionLength(opcode: u8): u16 {
     switch (opcode) {
         // 3 bytes: LD rr,d16 / LD (a16),SP / JP / CALL
@@ -298,4 +299,45 @@ function getInstructionLength(opcode: u8): u16 {
             return 1;
     }
 }
+
+
+// Read stack contents: returns pairs [addr_lo, addr_hi, val_lo, val_hi] from SP up to 0xFFFE
+export function readStack(computer: Computer, maxEntries: i32): Uint8Array {
+    const cpu = computer.cpu;
+    if (!cpu) throw new Error("Cpu not found");
+    const bus = computer.memoryBus;
+    if (!bus) throw new Error("MemoryBus not found");
+
+    const sp = cpu.registers.SP;
+    const stackBase: u16 = 0xCFFE;
+
+    if (sp >= stackBase) {
+        const result = new Uint8Array(2);
+        result[0] = <u8>(sp & 0xFF);
+        result[1] = <u8>((sp >> 8) & 0xFF);
+        return result;
+    }
+
+    const bytesUsed: i32 = <i32>(1 + stackBase - sp);
+    const count: i32 = bytesUsed < maxEntries ? bytesUsed : maxEntries;
+
+    // 2 bytes SP + 3 bytes per entry (addr_lo, addr_hi, value)
+    const result = new Uint8Array(2 + count * 3);
+
+    result[0] = <u8>(sp & 0xFF);
+    result[1] = <u8>((sp >> 8) & 0xFF);
+
+    for (let i: i32 = 0; i < count; i++) {
+        const addr: u16 = sp + <u16>i;
+        const val = bus.read(addr);
+
+        const off = 2 + i * 3;
+        result[off]     = <u8>(addr & 0xFF);
+        result[off + 1] = <u8>((addr >> 8) & 0xFF);
+        result[off + 2] = val;
+    }
+
+    return result;
+}
+
 

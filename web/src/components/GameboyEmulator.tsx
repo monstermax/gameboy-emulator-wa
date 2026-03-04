@@ -396,8 +396,6 @@ export type DebuggerProps = {
 export const Debugger: React.FC<DebuggerProps> = (props) => {
     const { emulator, emulatorIsRunning, emulatorState, handleSetSpeed, setEmulatorState } = props;
 
-    const [nextInstructions, setNextInstructions] = useState<InstructionDebug[]>([]);
-
     useEffect(() => {
         if (!emulator.wasmExports) return;
 
@@ -436,9 +434,6 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
         if (!emulator.currentRomFile) return;
 
         console.log(state)
-
-        const _nextInstructions = emulator.readNextInstructions(10);
-        setNextInstructions(_nextInstructions)
 
         setEmulatorState(state);
     }
@@ -540,26 +535,44 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
                     </div>
                 </div>
 
+                <div className="border border-yellow-700 flex flex-col">
+                    <div>Stack</div>
+
+                    <div className="max-h-48 overflow-auto">
+                        {emulatorState?.stack.map(item => {
+                            return (
+                                <div key={item.address}>
+                                    {item.address} | {item.value}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+
 
                 <div className="border border-amber-400 grow">
-                    {nextInstructions.map((instruction, idx) => {
-                        const data = Array.from(instruction.data?.map(b => b.valueOf()) ?? []);
-                        const instructionData = data.map(val => toHex(val, 2));
+                    <div>Instructions</div>
 
-                        return (
-                            <div
-                                key={instruction.address}
-                                className={`px-1 text-sm grid grid-cols-4 ${idx === 0 ? "bg-background/10" : "bg-background"}`}
-                            >
-                                <div>{toHex(instruction.address ?? 0, 4)}</div>
-                                <div>{instruction.opcode}</div>
-                                <div>{instruction.mnemonic}</div>
-                                <div>{instructionData.join(' ')}</div>
-                            </div>
-                        );
-                    })}
+                    <div className="max-h-48 overflow-auto">
+                        {emulatorState?.nextInstructions.map((instruction, idx) => {
+                            const data = Array.from(instruction.data?.map(b => b.valueOf()) ?? []);
+                            const instructionData = data.map(val => toHex(val, 2));
+
+                            return (
+                                <div
+                                    key={instruction.address}
+                                    className={`px-1 text-sm grid grid-cols-4 ${idx === 0 ? "bg-background/10" : "bg-background"}`}
+                                >
+                                    <div>{toHex(instruction.address ?? 0, 4)}</div>
+                                    <div>{instruction.opcode}</div>
+                                    <div>{instruction.mnemonic}</div>
+                                    <div>{instructionData.join(' ')}</div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
-                
+
             </div>
         </>
     );
