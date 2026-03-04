@@ -2,7 +2,7 @@
 
 import { fetchRom } from "./rom_reader";
 import { getRomHeader } from "./rom_utils";
-import { instructionsSet, type Instruction } from './cpu_instructions';
+import { instructionsSet, type Instruction, type InstructionDebug } from './cpu_instructions';
 import { fetchWasmModule, loadWasmExports, type WasmExports } from "./wasm_utils";
 import { asserts } from "./utils";
 import { toHex } from "./lib_numbers";
@@ -54,14 +54,14 @@ export class EmulatorWeb {
     public cycles: bigint = 0n;
     public frames: bigint = 0n;
     public registers: { PC: bigint } = { PC: 0n };
-    public audioEnabled  = true;
+    public audioEnabled = true;
 
     // Speed control
     private speed: number = 1.0;
     private speedAccumulator: number = 0;
 
 
-    constructor() {}
+    constructor() { }
 
 
     /**
@@ -133,6 +133,46 @@ export class EmulatorWeb {
     public getInstructionsSet() {
         return instructionsSet;
     }
+
+
+    public readNextInstructions(count: number = 10): InstructionDebug[] {
+        asserts(this.wasmExports, "wasmExports required");
+        asserts(this.computer, "computer required");
+
+        const raw: Uint8Array = this.wasmExports.readNextInstructions(this.computer, count);
+        const instructions: InstructionDebug[] = [];
+
+        for (let i = 0; i < raw.length; i += 6) {
+            const address = raw[i] | (raw[i + 1] << 8);
+            const opcode = raw[i + 2];
+            const isCB = raw[i + 3] === 1;
+            const byte1 = raw[i + 4];
+            const byte2 = raw[i + 5];
+
+            const opcodeHex = toHex(opcode) as keyof typeof instructionsSet['cbprefixed'];
+
+            const instr: InstructionDebug = isCB
+                ? { ...instructionsSet['cbprefixed'][opcodeHex] }
+                : { ...instructionsSet['unprefixed'][opcodeHex] };
+
+            if (!instr) continue;
+
+            instr.address = address;
+            instr.opcode = opcodeHex;
+            instr.isCbPrefixed = isCB;
+
+            // Data bytes (skip opcode byte itself)
+            const data: number[] = [];
+            if (!isCB && instr.bytes >= 2) data.push(byte1);
+            if (!isCB && instr.bytes >= 3) data.push(byte2);
+            instr.data = data;
+
+            instructions.push(instr);
+        }
+
+        return instructions;
+    }
+
 
 
     // =========================================================================
@@ -208,7 +248,7 @@ export class EmulatorWeb {
     /**
      * Start the emulation loop (~60 FPS via requestAnimationFrame).
      */
-    public loop = (time?: DOMHighResTimeStamp, once=false): void => {
+    public loop = (time?: DOMHighResTimeStamp, once = false): void => {
         if (!this.running && !once) return;
 
         // Speed control: accumulate fractional frames
@@ -252,7 +292,7 @@ export class EmulatorWeb {
             : null;
 
         const previousInstructionCode = (this.currentRomFile)
-            ? toHex(this.currentRomFile.at(PC-1) ?? 0, 4)
+            ? toHex(this.currentRomFile.at(PC - 1) ?? 0, 4)
             : null;
 
 
@@ -267,14 +307,14 @@ export class EmulatorWeb {
             currentInstruction = instructionsSet['unprefixed'][opcode]
         }
 
-        return { 
+        return {
             cycles: this.cycles,
             frames: this.frames,
             PC: toHex(PC),
             currentInstruction,
             isCbPrefixed,
             opcode,
-         };
+        };
     }
 
 
@@ -304,7 +344,7 @@ export class EmulatorWeb {
         for (let i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
             const shade = grayscale[i];
             const offset = i * 4;
-            pixels[offset]     = shade; // R
+            pixels[offset] = shade; // R
             pixels[offset + 1] = shade; // G
             pixels[offset + 2] = shade; // B
             pixels[offset + 3] = 255;   // A
@@ -449,13 +489,13 @@ export class EmulatorWeb {
 
     private keyMap: Record<string, number> = {
         "ArrowRight": 0x10,
-        "ArrowLeft":  0x20,
-        "ArrowUp":    0x40,
-        "ArrowDown":  0x80,
-        "z":          0x01,  // A
-        "x":          0x02,  // B
-        "Shift":      0x04,  // Select
-        "Enter":      0x08,  // Start
+        "ArrowLeft": 0x20,
+        "ArrowUp": 0x40,
+        "ArrowDown": 0x80,
+        "z": 0x01,  // A
+        "x": 0x02,  // B
+        "Shift": 0x04,  // Select
+        "Enter": 0x08,  // Start
     };
 
     public onKeyDown = (e: KeyboardEvent): void => {
@@ -470,7 +510,7 @@ export class EmulatorWeb {
         // Speed controls
         if (e.key === "+" || e.key === "=") { this.speedUp(); return; }
         if (e.key === "-" || e.key === "_") { this.speedDown(); return; }
-        if (e.key === "0" && e.ctrlKey)     { this.speedReset(); return; }
+        if (e.key === "0" && e.ctrlKey) { this.speedReset(); return; }
     }
 
     public onKeyUp = (e: KeyboardEvent): void => {
@@ -502,7 +542,7 @@ export class EmulatorWeb {
     //  Legacy
     // =========================================================================
 
-    public runEmulatorCycles(cyclesCount=1) {
+    public runEmulatorCycles(cyclesCount = 1) {
         asserts(this.wasmExports, "wasmExports required");
         asserts(this.computer, "computer required");
 
@@ -511,11 +551,11 @@ export class EmulatorWeb {
         this.drawFrame()
     }
 
-    public runEmulatorFrames(framesCount=1) {
+    public runEmulatorFrames(framesCount = 1) {
         asserts(this.wasmExports, "wasmExports required");
         asserts(this.computer, "computer required");
 
-        for (let i=0; i<framesCount; i++) {
+        for (let i = 0; i < framesCount; i++) {
             this.loop(undefined, true)
         }
     }

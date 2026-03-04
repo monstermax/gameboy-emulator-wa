@@ -85,6 +85,7 @@ export function getEmulatorState(computer: Computer, stateKey: string): i64 {
 }
 
 
+
 /**
  * Get the current framebuffer as a flat Uint8Array (160x144 grayscale pixels).
  * Each byte is a shade: 255=white, 170=light, 85=dark, 0=black.
@@ -184,3 +185,81 @@ export function injectRom(computer: Computer, romFile: Uint8Array): void {
 
     console.log(`[WASM] Rom Loaded (${staticArr.length} bytes)`)
 }
+
+
+// read memory at address ===
+export function readMemory(computer: Computer, address: u16): u8 {
+    const bus = computer.memoryBus;
+    if (!bus) throw new Error("MemoryBus not found");
+    return bus.read(address);
+}
+
+
+
+export function readNextInstructions(computer: Computer, count: i32): Uint8Array {
+    const bus = computer.memoryBus;
+    if (!bus) throw new Error("MemoryBus not found");
+    const cpu = computer.cpu;
+    if (!cpu) throw new Error("Cpu not found");
+
+    // 6 bytes per entry: addr_lo, addr_hi, opcode, isCB, byte1, byte2
+    const result = new Uint8Array(count * 6);
+    let pc: u16 = cpu.registers.PC;
+    let offset: i32 = 0;
+
+    for (let i: i32 = 0; i < count; i++) {
+        const addr = pc;
+        let opcode = bus.read(pc);
+        let isCB: u8 = 0;
+        let byte1: u8 = 0;
+        let byte2: u8 = 0;
+        let instrLen: u16 = 1;
+
+        if (opcode == 0xCB) {
+            isCB = 1;
+            opcode = bus.read(pc + 1);
+            instrLen = 2;
+
+        } else {
+            instrLen = getInstructionLength(opcode);
+            if (instrLen >= 2) byte1 = bus.read(pc + 1);
+            if (instrLen >= 3) byte2 = bus.read(pc + 2);
+        }
+
+        result[offset]     = <u8>(addr & 0xFF);
+        result[offset + 1] = <u8>((addr >> 8) & 0xFF);
+        result[offset + 2] = opcode;
+        result[offset + 3] = isCB;
+        result[offset + 4] = byte1;
+        result[offset + 5] = byte2;
+
+        offset += 6;
+        pc += instrLen;
+    }
+
+    return result;
+}
+
+function getInstructionLength(opcode: u8): u16 {
+    switch (opcode) {
+        // 3 bytes: LD rr,d16 / LD (a16),SP / JP / CALL
+        case 0x01: case 0x08: case 0x11: case 0x21: case 0x31:
+        case 0xC2: case 0xC3: case 0xC4: case 0xCA: case 0xCC: case 0xCD:
+        case 0xD2: case 0xD4: case 0xDA: case 0xDC:
+        case 0xEA: case 0xFA:
+            return 3;
+
+        // 2 bytes: LD r,d8 / JR / ALU d8 / LDH / ADD SP,e8 / CB prefix
+        case 0x06: case 0x0E: case 0x16: case 0x1E:
+        case 0x26: case 0x2E: case 0x36: case 0x3E:
+        case 0x10: case 0x18: case 0x20: case 0x28: case 0x30: case 0x38:
+        case 0xC6: case 0xCE: case 0xD6: case 0xDE:
+        case 0xE0: case 0xE6: case 0xE8: case 0xEE:
+        case 0xF0: case 0xF6: case 0xF8: case 0xFE:
+            return 2;
+
+        default:
+            return 1;
+    }
+}
+

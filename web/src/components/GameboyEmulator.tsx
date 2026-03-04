@@ -387,9 +387,6 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
     const { emulator, emulatorIsRunning, handleSetSpeed } = props;
 
     const [nextInstructions, setNextInstructions] = useState<InstructionDebug[]>([]);
-    const [previousInstructions, setPreviousInstructions] = useState<{ address: number, value: number }[]>([]);
-
-    const instructionsSet = emulator.getInstructionsSet()
 
     useEffect(() => {
         if (!emulator.wasmExports) return;
@@ -430,73 +427,7 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
 
         console.log(state)
 
-        const PC = Number(state.PC)
-
-        const currentExecutionZone = emulator.currentRomFile.subarray(PC - 5, PC + 20);
-        //console.log('currentExecutionZone:', currentExecutionZone)
-
-        let isCbPrefixed = state.isCbPrefixed;
-        const _nextInstructions: Instruction[] = [];
-        const _previousInstructions: { address: number, value: number }[] = [];
-
-
-        for (let address = PC - 1; address > PC - 5; address--) {
-            const opcode = currentExecutionZone.at(address - PC) ?? 0
-            _previousInstructions.push({ address, value: opcode })
-        }
-        _previousInstructions.reverse()
-
-
-        for (let address = PC; address < PC + 20; address++) {
-            const addressHex = toHex(address, 4);
-            const opcode = currentExecutionZone.at(address - PC) as number | undefined;
-            asserts(opcode !== undefined, `Missing opcode at address ${addressHex} (prefixed=${isCbPrefixed ? "Y" : "N"})`)
-
-            const opcodeHex = toHex(opcode) as keyof typeof instructionsSet['cbprefixed']
-
-            let currentInstruction: InstructionDebug | null = null;
-
-            if (isCbPrefixed) {
-                currentInstruction = { ...instructionsSet['cbprefixed'][opcodeHex] }
-
-            } else {
-                currentInstruction = { ...instructionsSet['unprefixed'][opcodeHex] }
-            }
-
-            if (!currentInstruction) {
-                throw new Error(`Missing currentInstruction at address ${addressHex} (opcode=${opcodeHex}  prefixed=${isCbPrefixed ? "Y" : "N"})`);
-            }
-
-            currentInstruction.address = address;
-            currentInstruction.opcode = opcodeHex;
-            currentInstruction.isCbPrefixed = isCbPrefixed;
-
-            const data = new Array<number>(currentInstruction.bytes - 1).fill(0);
-
-            data.forEach((byte, idx) => {
-                address++;
-                data[idx] = currentExecutionZone.at(address - PC)?.valueOf() ?? -1
-            })
-
-            currentInstruction.data = data;
-
-            _nextInstructions.push(currentInstruction);
-
-            isCbPrefixed = false;
-
-            if (_nextInstructions.length >= 5) {
-                break;
-            }
-
-            if (!isCbPrefixed && opcodeHex === '0xCB') {
-                isCbPrefixed = true;
-                continue;
-            }
-        }
-
-        //console.log('_previousInstructions:', _previousInstructions);
-        //console.log('nextInstructions:', _nextInstructions);
-        setPreviousInstructions(_previousInstructions)
+        const _nextInstructions = emulator.readNextInstructions(10);
         setNextInstructions(_nextInstructions)
     }
 
@@ -572,20 +503,6 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
 
 
                 <div className="border border-amber-400 grow">
-                    {previousInstructions.map((instruction, idx) => {
-                        return (
-                            <div
-                                key={instruction.address}
-                                className={`px-1 text-sm grid grid-cols-4 ${idx === 0 ? "bg-background/10" : "bg-background"}`}
-                            >
-                                <div>{toHex(instruction.address ?? 0, 4)}</div>
-                                <div>{toHex(instruction.value)}</div>
-                                <div>-</div>
-                                <div>-</div>
-                            </div>
-                        );
-                    })}
-
                     {nextInstructions.map((instruction, idx) => {
                         const data = Array.from(instruction.data?.map(b => b.valueOf()) ?? []);
                         const instructionData = data.map(val => toHex(val, 2));
