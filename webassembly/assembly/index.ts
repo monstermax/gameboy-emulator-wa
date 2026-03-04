@@ -79,6 +79,42 @@ export function getEmulatorState(computer: Computer, stateKey: string): i64 {
         return cpu.registers.PC || 0;
     }
 
+    if (stateKey === 'registers.SP') {
+        return cpu.registers.SP || 0;
+    }
+
+    if (stateKey === 'registers.A') {
+        return cpu.registers.A || 0;
+    }
+
+    if (stateKey === 'registers.B') {
+        return cpu.registers.B || 0;
+    }
+
+    if (stateKey === 'registers.C') {
+        return cpu.registers.C || 0;
+    }
+
+    if (stateKey === 'registers.D') {
+        return cpu.registers.D || 0;
+    }
+
+    if (stateKey === 'registers.E') {
+        return cpu.registers.E || 0;
+    }
+
+    if (stateKey === 'registers.F') {
+        return cpu.registers.F || 0;
+    }
+
+    if (stateKey === 'registers.H') {
+        return cpu.registers.H || 0;
+    }
+
+    if (stateKey === 'registers.L') {
+        return cpu.registers.L || 0;
+    }
+
     throw new Error(`Key "${stateKey}" not found`);
 
     return 0;

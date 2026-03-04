@@ -27,10 +27,37 @@ type ComputerRef = __Internref8;
 export type StateDump = {
     cycles: bigint;
     frames: bigint;
-    PC: string;
+    registers: RegistersHex;
     currentInstruction: Instruction | null;
     isCbPrefixed: boolean;
     opcode: `0x${string}`;
+}
+
+
+export type Registers = {
+    PC: bigint;
+    SP: bigint;
+    A: bigint;
+    B: bigint;
+    C: bigint;
+    D: bigint;
+    E: bigint;
+    F: bigint;
+    H: bigint;
+    L: bigint;
+}
+
+export type RegistersHex = {
+    PC: `0x${string}`;
+    SP: `0x${string}`;
+    A: `0x${string}`;
+    B: `0x${string}`;
+    C: `0x${string}`;
+    D: `0x${string}`;
+    E: `0x${string}`;
+    F: `0x${string}`;
+    H: `0x${string}`;
+    L: `0x${string}`;
 }
 
 
@@ -53,7 +80,7 @@ export class EmulatorWeb {
     private running: boolean = false;
     public cycles: bigint = 0n;
     public frames: bigint = 0n;
-    public registers: { PC: bigint } = { PC: 0n };
+    public registers: Registers = { PC: 0n, SP: 0n, A: 0n, B: 0n, C: 0n, D: 0n, E: 0n, F: 0n, H: 0n, L: 0n };
     public audioEnabled = true;
 
     // Speed control
@@ -284,6 +311,15 @@ export class EmulatorWeb {
         this.cycles = this.wasmExports.getEmulatorState(this.computer, 'cycles');
         this.frames = this.wasmExports.getEmulatorState(this.computer, 'frames');
         this.registers.PC = this.wasmExports.getEmulatorState(this.computer, 'registers.PC');
+        this.registers.SP = this.wasmExports.getEmulatorState(this.computer, 'registers.SP');
+        this.registers.A = this.wasmExports.getEmulatorState(this.computer, 'registers.A');
+        this.registers.B = this.wasmExports.getEmulatorState(this.computer, 'registers.B');
+        this.registers.C = this.wasmExports.getEmulatorState(this.computer, 'registers.C');
+        this.registers.D = this.wasmExports.getEmulatorState(this.computer, 'registers.D');
+        this.registers.E = this.wasmExports.getEmulatorState(this.computer, 'registers.E');
+        this.registers.F = this.wasmExports.getEmulatorState(this.computer, 'registers.F');
+        this.registers.L = this.wasmExports.getEmulatorState(this.computer, 'registers.L');
+        this.registers.H = this.wasmExports.getEmulatorState(this.computer, 'registers.H');
 
         const PC = Number(this.registers.PC);
 
@@ -310,7 +346,19 @@ export class EmulatorWeb {
         return {
             cycles: this.cycles,
             frames: this.frames,
-            PC: toHex(PC),
+            registers: {
+                PC: toHex(Number(this.registers.PC)),
+                SP: toHex(Number(this.registers.SP)),
+                A: toHex(Number(this.registers.A)),
+                B: toHex(Number(this.registers.B)),
+                C: toHex(Number(this.registers.C)),
+                D: toHex(Number(this.registers.D)),
+                E: toHex(Number(this.registers.E)),
+                F: toHex(Number(this.registers.F)),
+                H: toHex(Number(this.registers.H)),
+                L: toHex(Number(this.registers.L)),
+
+            },
             currentInstruction,
             isCbPrefixed,
             opcode,

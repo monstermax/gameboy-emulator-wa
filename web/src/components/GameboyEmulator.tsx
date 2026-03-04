@@ -21,7 +21,7 @@ export const GameboyEmulator: React.FC = () => {
     const { emulator, emulatorStart, emulatorStop, isRunning: emulatorIsRunning, canvasRef, ready } = useEmulator(romFilename)
 
     const lastIterationInfosRef = useRef({ cycles: 0n, frames: 0n, date: Date.now() });
-    const cursorRef = useRef<HTMLDivElement>(null);
+    const [ emulatorState, setEmulatorState ] = useState<StateDump | null>(null);
 
     const [cyclesSpeed, setCyclesSpeed] = useState(0);
     const [framesSpeed, setFramesSpeed] = useState(0);
@@ -32,6 +32,7 @@ export const GameboyEmulator: React.FC = () => {
     const [audioVolume, setAudioVolume] = useState(100);
     const [speed, setSpeed] = useState(1);
     const [audioVolumeSelectorVisible, setAudioVolumeSelectorVisible] = useState(false);
+    const cursorRef = useRef<HTMLDivElement>(null);
 
 
     useEffect(() => {
@@ -252,7 +253,13 @@ export const GameboyEmulator: React.FC = () => {
                         </Gamepad>
 
                         <div className={`size-full ${debuggerVisible ? "" : "hidden"}`}>
-                            <Debugger emulator={emulator} emulatorIsRunning={emulatorIsRunning} handleSetSpeed={handleSetSpeed} />
+                            <Debugger
+                                emulator={emulator}
+                                emulatorIsRunning={emulatorIsRunning}
+                                emulatorState={emulatorState}
+                                handleSetSpeed={handleSetSpeed}
+                                setEmulatorState={setEmulatorState}
+                            />
                         </div>
 
                         <div className="flex justify-center gap-2">
@@ -381,11 +388,13 @@ const GameSelector: React.FC<GameSelectorProps> = (props) => {
 export type DebuggerProps = {
     emulator: EmulatorWeb;
     emulatorIsRunning: boolean;
+    emulatorState: StateDump | null;
     handleSetSpeed: (speed: number) => void;
+    setEmulatorState: React.Dispatch<React.SetStateAction<StateDump | null>>;
 }
 
 export const Debugger: React.FC<DebuggerProps> = (props) => {
-    const { emulator, emulatorIsRunning, handleSetSpeed } = props;
+    const { emulator, emulatorIsRunning, emulatorState, handleSetSpeed, setEmulatorState } = props;
 
     const [nextInstructions, setNextInstructions] = useState<InstructionDebug[]>([]);
 
@@ -430,6 +439,8 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
 
         const _nextInstructions = emulator.readNextInstructions(10);
         setNextInstructions(_nextInstructions)
+
+        setEmulatorState(state);
     }
 
 
@@ -502,6 +513,33 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
                     </div>
                 </div>
 
+                <div className="border border-yellow-700 flex flex-col">
+                    <div>Registers</div>
+
+                    <div className="flex flex-col gap-1">
+                        <div>PC: {emulatorState?.registers.PC}</div>
+                        <div>SP: {emulatorState?.registers.SP}</div>
+
+                        <div className="grid grid-cols-2 gap-1">
+                            <div>A: {emulatorState?.registers.A}</div>
+                            <div>F: {emulatorState?.registers.F}</div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-1">
+                            <div>B: {emulatorState?.registers.B}</div>
+                            <div>C: {emulatorState?.registers.C}</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1">
+                            <div>D: {emulatorState?.registers.D}</div>
+                            <div>E: {emulatorState?.registers.E}</div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1">
+                            <div>H: {emulatorState?.registers.H}</div>
+                            <div>L: {emulatorState?.registers.L}</div>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div className="border border-amber-400 grow">
                     {nextInstructions.map((instruction, idx) => {
@@ -521,6 +559,7 @@ export const Debugger: React.FC<DebuggerProps> = (props) => {
                         );
                     })}
                 </div>
+                
             </div>
         </>
     );
