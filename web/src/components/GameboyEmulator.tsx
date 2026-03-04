@@ -354,7 +354,7 @@ const GameSelector: React.FC<GameSelectorProps> = (props) => {
     useEffect(() => {
         fetch(gamesListUrl)
             .then(res => res.json())
-            .then(games => games.filter(g => !g.startsWith('gbc/'))) // exclude Gameboy Color games (do not works)
+            .then(games => games.filter((filepath: string) => !filepath.startsWith('gbc/'))) // exclude Gameboy Color games (do not works)
             .then(setGamesList)
             .catch(console.error);
     }, []);
