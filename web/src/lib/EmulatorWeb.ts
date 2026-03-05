@@ -418,12 +418,21 @@ export class EmulatorWeb {
         // Convert grayscale → RGBA
         const pixels = this.imageData.data;
 
+        let { rFactor, gFactor, bFactor } = applyPalette('default')
+
+        const rainbowMode = false;
+        if (rainbowMode) {
+            rFactor = Math.round(Number(this.cycles)/300_000) % 4 === 1 ? 2 : 1;
+            gFactor = Math.round(Number(this.cycles)/300_000) % 4 === 2 ? 2 : 1;
+            bFactor = Math.round(Number(this.cycles)/300_000) % 4 === 3 ? 2 : 1;
+        }
+
         for (let i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
             const shade = grayscale[i];
             const offset = i * 4;
-            pixels[offset] = shade; // R
-            pixels[offset + 1] = shade; // G
-            pixels[offset + 2] = shade; // B
+            pixels[offset] = shade * rFactor; // R
+            pixels[offset + 1] = shade * gFactor; // G
+            pixels[offset + 2] = shade * bFactor; // B
             pixels[offset + 3] = 255;   // A
         }
 
@@ -635,6 +644,60 @@ export class EmulatorWeb {
         for (let i = 0; i < framesCount; i++) {
             this.loop(undefined, true)
         }
+    }
+
+}
+
+
+
+function applyPalette(paletteName='default', custom?: any) {
+    let rFactor = 1;
+    let gFactor = 1;
+    let bFactor = 1;
+
+    if (paletteName === 'default') {
+        rFactor = 0.85;
+        gFactor = 1;
+        bFactor = 0.85;
+    }
+
+    if (paletteName === 'red') {
+        rFactor = 2;
+    }
+
+    if (paletteName === 'green') {
+        gFactor = 2;
+    }
+
+    if (paletteName === 'blue') {
+        bFactor = 2;
+    }
+
+    if (paletteName === 'yellow') {
+        rFactor = 2;
+        gFactor = 2;
+    }
+
+    if (paletteName === 'pink') {
+        rFactor = 2;
+        bFactor = 2;
+    }
+
+    if (paletteName === 'cyan') {
+        gFactor = 2;
+        bFactor = 2;
+    }
+
+    if (paletteName === 'custom') {
+        rFactor = custom.r ?? 1;
+        gFactor = custom.g ?? 1;
+        bFactor = custom.b ?? 1;
+    }
+
+    return {
+        rFactor,
+        gFactor,
+        bFactor,
     }
 
 }
