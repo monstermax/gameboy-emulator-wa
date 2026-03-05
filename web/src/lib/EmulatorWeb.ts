@@ -418,7 +418,7 @@ export class EmulatorWeb {
         // Convert grayscale → RGBA
         const pixels = this.imageData.data;
 
-        let { rFactor, gFactor, bFactor } = applyPalette('default')
+        let { rFactor, gFactor, bFactor, rMin, rMax, gMin, gMax, bMin, bMax } = applyPalette('default')
 
         const rainbowMode = false;
         if (rainbowMode) {
@@ -430,9 +430,9 @@ export class EmulatorWeb {
         for (let i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; i++) {
             const shade = grayscale[i];
             const offset = i * 4;
-            pixels[offset] = shade * rFactor; // R
-            pixels[offset + 1] = shade * gFactor; // G
-            pixels[offset + 2] = shade * bFactor; // B
+            pixels[offset] =     Math.min(rMax, Math.max(rMin, shade * rFactor)); // R
+            pixels[offset + 1] = Math.min(gMax, Math.max(gMin, shade * gFactor)); // G
+            pixels[offset + 2] = Math.min(bMax, Math.max(bMin, shade * bFactor)); // B
             pixels[offset + 3] = 255;   // A
         }
 
@@ -654,11 +654,18 @@ function applyPalette(paletteName='default', custom?: any) {
     let rFactor = 1;
     let gFactor = 1;
     let bFactor = 1;
+    let rMin = 0;
+    let rMax = 255;
+    let gMin = 0;
+    let gMax = 255;
+    let bMin = 0;
+    let bMax = 255;
 
     if (paletteName === 'default') {
-        rFactor = 0.85;
-        gFactor = 1;
-        bFactor = 0.85;
+        gFactor = 1.3;
+        rMin = 20; rMax = 220;
+        gMin = 30; gMax = 250;
+        bMin = 10; bMax = 200;
     }
 
     if (paletteName === 'red') {
@@ -698,6 +705,12 @@ function applyPalette(paletteName='default', custom?: any) {
         rFactor,
         gFactor,
         bFactor,
+        rMin,
+        rMax,
+        gMin,
+        gMax,
+        bMin,
+        bMax,
     }
 
 }
